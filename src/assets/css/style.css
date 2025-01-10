@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=fallback');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+
+
+@import 'tailwindcss/utilities';
+
+
+
+:root {
+    /* Основной цвет */
+    --el-color-primary: #095e9e;
+
+    /* Цвета для состояний */
+    --el-color-success: #67C23A;
+    --el-color-warning: #E6A23C;
+    --el-color-danger: #FF3A3A;
+    --el-color-info: #909399;
+    --tw-gradient-stops: #ff8000;
+    --el-menu-base-level-padding: 8px;
+    --el-menu-item-height: 40px;
+}
