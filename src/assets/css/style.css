@@ -9,15 +9,76 @@
 
 
 :root {
+
+    --color-black: #233447;
+    --color-primary: #385df0;
+    --color-blue: #3db3ff;
+    --color-green: #00bd83;
+    --color-red: #f94a8b;
+    --color-yellow: #ffba00;
+    --color-gray: #7e88a2;
+
+
     /* Основной цвет */
-    --el-color-primary: #095e9e;
+    --el-color-primary: #385df0;
+
 
     /* Цвета для состояний */
-    --el-color-success: #67C23A;
-    --el-color-warning: #E6A23C;
-    --el-color-danger: #FF3A3A;
-    --el-color-info: #909399;
-    --tw-gradient-stops: #ff8000;
+    --el-color-success: #00bd83;
+    --el-color-warning: #ffba00;
+    --el-color-danger: #f94a8b;
+    --el-color-info: #7e88a2;
+    --tw-gradient-stops: #ffba00;
     --el-menu-base-level-padding: 8px;
-    --el-menu-item-height: 40px;
+    --el-menu-item-height: 32px;
+    --el-menu-item-font-size: 12px;
+    --main-color: #385df0;
+    --el-menu-active-color: #385df0;
+    --el-menu-hover-bg-color: #385df037;
+    --hover-color: #385df037;
+    --el-menu-icon-width: 38px;
+
+}
+body {
+    background: #fff;
+}
+
+.el-menu-item.is-active {
+    background-color: var(--hover-color);
+}
+.el-menu-item {
+    margin: 5px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.close_header {
+    
+}
+.close_header button {
+    position: fixed;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    border-radius: 50%;
+    color: var(--color-gray);
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: -13px;
+    z-index: 3 !important;
+    margin-top: -10px;
+}
+.el-menu-item .el-menu-tooltip__trigger {
+    padding: 0;
+}
+.el-menu-item {
+    padding: 5px 0 !important;
+}
+.page_title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-black);
 }

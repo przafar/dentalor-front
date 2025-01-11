@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from '../plugins/axios/index';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode  from 'jwt-decode';
 
 export const authStore = defineStore('auth', {
   state: () => ({
@@ -8,12 +8,14 @@ export const authStore = defineStore('auth', {
       token: localStorage.getItem('token') || null,
       role: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).role : null,
       ability: null,
+      isCollapse: false,
     },
   }),
   getters: {
     isAuthenticated: (state) => !!state.user.token,
     getRole: (state) => state.user.role,
     getAbility: (state) => state.user.ability,
+    getIsCollapse: (state) => state.isCollapse,
   },
   actions: {
     async login(formData) {
@@ -40,6 +42,7 @@ export const authStore = defineStore('auth', {
         throw new Error('Login failed.');
       }
     },
+    
 
     logout() {
       localStorage.removeItem('token');
@@ -50,6 +53,10 @@ export const authStore = defineStore('auth', {
       this.user.ability = null;
 
       window.location.href = '/auth/login';
+    },
+
+    toggleCollapse() {
+      this.isCollapse = !this.isCollapse;
     },
   },
 });

@@ -1,6 +1,6 @@
 <template>
   <div>
-    lroem
+    Главная
   </div>
 </template>
 <script setup>

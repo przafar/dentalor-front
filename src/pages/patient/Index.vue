@@ -1,6 +1,6 @@
 <template>
   <div>
-    services
+    patient
   </div>
 </template>
 <script setup>

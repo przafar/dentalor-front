@@ -5,8 +5,7 @@
     <div
       class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden"
     >
-      <Header
-      />
+      <Header/>
 
       <router-view />
     </div>
@@ -16,7 +15,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRoute, useRouter } from 'vue-router';
 
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
