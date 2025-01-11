@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Dashboard from './pages/Dashboard.vue';
-import Login from './pages/login/Index.vue';
-import MainLayout from './layouts/MainLayout.vue';
-import EmptyLayout from './layouts/EmptyLayout.vue';
+import Dashboard from '../pages/Dashboard.vue';
+import Service from '../pages/service/Index.vue';
+import Patient from '../pages/patient/Index.vue';
+
+import Login from '../pages/login/Index.vue';
+import MainLayout from '../layouts/MainLayout.vue';
+import EmptyLayout from '../layouts/EmptyLayout.vue';
 
 const routes = [
   {
@@ -14,6 +17,19 @@ const routes = [
         path: '', 
         name: 'Dashboard',
         component: Dashboard,
+        meta: { name: 'Dashboard' },
+      },
+      {
+        path: '/service', 
+        name: 'service',
+        component: Service,
+        meta: { name: 'service' },
+      },
+      {
+        path: '/patient', 
+        name: 'patient',
+        component: Patient,
+        meta: { name: 'patient' },
       },
     ],
   },
@@ -42,7 +58,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     next({ name: 'Login' });
   } else if (to.meta.requiresGuest && isAuthenticated) {
-    next({ name: 'Dashboard' });
+    next({ name: 'service' });
   } else {
     next();
   }

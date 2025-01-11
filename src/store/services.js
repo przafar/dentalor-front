@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
-import { filter } from './properties/manufacturerFilter.js';
-import { badInstance } from '../plugins/axios/badInstance.js';
 import { ElNotification } from 'element-plus';
+import axios from '../plugins/axios/index';
 
 function handleError(error) {
   const { response } = error;
@@ -21,7 +20,7 @@ function handleError(error) {
   throw error;
 }
 
-export const badControllerStore = defineStore('badController', {
+export const servicesStore = defineStore('services', {
   state: () => ({
     loading: false,
     encounterClasses: [],
@@ -77,6 +76,6 @@ export const badControllerStore = defineStore('badController', {
   },
 
   getters: {
-    getBadControllers: (state) => state.badControllers,
+    getEncounterClasses: (state) => state.encounterClasses,
   },
 });

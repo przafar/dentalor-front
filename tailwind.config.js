@@ -1,11 +1,8 @@
-import plugin from "tailwindcss/plugin";
+import plugin from 'tailwindcss/plugin';
 import forms from '@tailwindcss/forms';
 
 export default {
-  content: [
-    './index.html',
-    './src/**/*.{vue,js,ts,jsx,tsx}',
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
     extend: {
@@ -128,11 +125,13 @@ export default {
     },
   },
   plugins: [
-    forms,
     // add custom variant for expanding sidebar
     plugin(({ addVariant, e }) => {
       addVariant('sidebar-expanded', ({ modifySelectors, separator }) => {
-        modifySelectors(({ className }) => `.sidebar-expanded .${e(`sidebar-expanded${separator}${className}`)}`);
+        modifySelectors(
+          ({ className }) =>
+            `.sidebar-expanded .${e(`sidebar-expanded${separator}${className}`)}`
+        );
       });
     }),
   ],
