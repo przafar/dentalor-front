@@ -1,4 +1,3 @@
-<!-- CreateServiceForm.vue -->
 <template>
   <el-form :model="form" label-width="100px" label-position="top">
     <el-form-item label="Код">
@@ -9,8 +8,8 @@
     </el-form-item>
     <el-form-item>
       <div class="flex justify-end">
-        <el-button type="primary" @click="onCreate">Добавить</el-button>
-        <el-button @click="onCancel">Отмена</el-button>
+        <el-button :loading="isLoading" type="primary" @click="onCreate">Создать</el-button>
+        <el-button :loading="isLoading" @click="onCancel">Отмена</el-button>
       </div>
     </el-form-item>
   </el-form>
@@ -22,24 +21,28 @@ import { servicesStore } from '@/store/services'
 
 const store = servicesStore()
 
-// Локальное состояние формы – изначально пустое
 const form = ref({
   code: '',
   display: ''
 })
 
-// Эмит событий для передачи в родительский компонент
 const emit = defineEmits(['create', 'cancel'])
 
-// При клике на "Добавить"
-const onCreate = () => {
+const isLoading = ref(false)
+
+const onCreate = async () => {
+  isLoading.value = true
   const payload = { ...form.value }
-  store.CREATE_ENCOUNTER_CLASSES(payload)
-  
-  emit('create', payload)
+  try {
+    await store.CREATE_ENCOUNTER_CLASSES(payload)
+    emit('create', payload)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-// При клике на "Отмена"
 const onCancel = () => {
   emit('cancel')
 }

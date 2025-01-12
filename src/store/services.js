@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ElNotification } from 'element-plus';
 import axios from '../plugins/axios/index';
+import { get } from '@vueuse/core/index.cjs';
 
 function handleError(error) {
   const { response } = error;
@@ -55,18 +56,26 @@ export const servicesStore = defineStore('services', {
       return await axios
         .post('valuesets/encounter_classes', body)
         .then((e) => {
-          console.log(e, 'Success')
           return e
         })
         .catch((error) => {
           return error
         })
     },
-    async CREATE_ENCOUNTER_TYPES(body) {
+    async UPDATE_ENCOUNTER_CLASSES(id, body) {
       return await axios
-        .post('valuesets/encounter_types', body)
+        .put(`valuesets/encounter_classes/${id}`, body)
         .then((e) => {
-
+          return e
+        })
+        .catch((error) => {
+          return error
+        })
+    },
+    async CREATE_ENCOUNTER_TYPES(id, body) {
+      return await axios
+        .post(`valuesets/encounter_types/${id}`, body)
+        .then((e) => {
           return e
         })
         .catch((error) => {
@@ -77,5 +86,6 @@ export const servicesStore = defineStore('services', {
 
   getters: {
     getEncounterClasses: (state) => state.encounterClasses,
+    getEncounterTypes: (state) => state.encounterTypes,
   },
 });
