@@ -1,6 +1,5 @@
 <template>
   <div class="p-4">
-    <!-- Кнопка создания нового сервиса -->
     <div class="mb-4 flex justify-between items-center">
       <div>
         <h4 class="page_title">Сервисы</h4>
@@ -35,31 +34,18 @@
 
     <el-drawer
       title="Просмотр сервиса"
-      :visible.sync="showDrawerVisible"
+      v-model="showDrawerVisible"
       direction="rtl"
-      size="30%">
-      <div>
-        <p>Здесь будут отображаться детали сервиса.</p>
-      </div>
+      size="50%">
+      <View-types :data="selectedService" />
     </el-drawer>
 
     <el-drawer
       title="Редактировать сервис"
-      :visible.sync="editDrawerVisible"
+      v-model="editDrawerVisible"
       direction="rtl"
-      size="30%">
-      <el-form :model="editForm" label-width="100px">
-        <el-form-item label="Код">
-          <el-input v-model="editForm.code" />
-        </el-form-item>
-        <el-form-item label="Название">
-          <el-input v-model="editForm.display" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitEdit">Сохранить</el-button>
-          <el-button @click="closeEditDrawer">Отмена</el-button>
-        </el-form-item>
-      </el-form>
+      size="40%">
+      <edit-form :data="selectedService" @edit="handleEdit" @cancel="closeEditDrawer" />
     </el-drawer>
 
     <el-drawer
@@ -77,7 +63,10 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { servicesStore } from '@/store/services'
 
-import CreateForm from './components/CreateForm.vue'
+import ViewTypes from './components/ViewTypes.vue'
+
+import CreateForm from './dialogs/encounterClasses/CreateForm.vue'
+import EditForm from './dialogs/encounterClasses/EditForm.vue'
 
 
 
@@ -88,11 +77,7 @@ const editDrawerVisible = ref(false)
 const createDrawerVisible = ref(false)
 const selectedService = ref(null)
 
-const editForm = reactive({
-  id: null,
-  code: '',
-  display: ''
-})
+
 
 
 
@@ -107,16 +92,14 @@ const fetchFormController = async () => {
   await store.GET_LIST_OF_ECOUNTER_CLASSES();
 };
 
-const openShowDrawer = (row) => {
+const openShowDrawer = async (row) => {
+  await store.GET_LIST_OF_ECOUNTER_TYPES(row.code)
   selectedService.value = row
   showDrawerVisible.value = true
 }
 
 const openEditDrawer = (row) => {
-  selectedService.value = row
-  editForm.id = row.id
-  editForm.code = row.code
-  editForm.display = row.display
+  selectedService.value = { ...row }
   editDrawerVisible.value = true
 }
 
@@ -128,8 +111,11 @@ const handleCreate = async () => {
   await fetchFormController()
   createDrawerVisible.value = false
 }
+const handleEdit = async () => {
+  await fetchFormController()
+  editDrawerVisible.value = false
+}
 
-// Удаление сервиса с подтверждением
 const handleDelete = (row) => {
   ElMessageBox.confirm(
     `Вы уверены, что хотите удалить сервис "${row.display}"?`,
@@ -145,7 +131,6 @@ const handleDelete = (row) => {
       ElMessage.success('Сервис удален')
     })
     .catch(() => {
-      // Действия при отмене
     })
 }
 
