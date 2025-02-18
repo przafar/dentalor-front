@@ -49,14 +49,12 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["page-changed", "size-changed"]);
-
+const emit = defineEmits([ "page-changed", "size-changed" ]);
 
 const currentPageModel = computed({
   get: () => props.currentPage,
   set: (val) => emit("page-changed", val)
 });
-
 
 const pageSizeModel = computed({
   get: () => props.pageSize,
@@ -72,10 +70,10 @@ const handlePageSizeChange = (newSize) => {
 };
 
 const options = [
-  { value: 10, label: "10" },
-  { value: 20, label: "20" },
-  { value: 50, label: "50" },
-  { value: 100, label: "100" }
+  {value: 10, label: "10"},
+  {value: 20, label: "20"},
+  {value: 50, label: "50"},
+  {value: 100, label: "100"}
 ];
 </script>
 
