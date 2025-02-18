@@ -137,12 +137,12 @@ const handleSubmit = async () => {
   formRef.value.validate( async (valid) => {
     if (valid) {
       const payload = {
-        firstName: form.firstName,
-        lastName: form.lastName,
+        firstName: form.firstName.toUpperCase(),
+        lastName: form.lastName.toUpperCase(),
         phoneNumber: form.phoneNumber,
         birthDate: form.birthDate,
         gender: form.gender,
-        middleName: form.middleName,
+        middleName: form.middleName.toUpperCase(),
         url: '',
         identifier: [
           {

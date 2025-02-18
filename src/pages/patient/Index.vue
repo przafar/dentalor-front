@@ -83,7 +83,7 @@
         destroy-on-close
     >
       <CreateForm
-          @success="handleEditSuccess"
+          @success="handleCreateSuccess"
       />
     </el-drawer>
 
@@ -192,6 +192,10 @@ const confirmDelete = async (data) => {
 const handleEditSuccess = async () => {
   await fetchFormController();
   updatePatientDrawer.value = false;
+};
+const handleCreateSuccess = async () => {
+  await fetchFormController();
+  createPatientDrawer.value = false;
 };
 
 
