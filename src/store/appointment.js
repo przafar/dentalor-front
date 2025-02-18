@@ -5,6 +5,7 @@ import { get } from '@vueuse/core/index.cjs';
 
 function handleError(error) {
     const { response } = error;
+
     if (response && (response.status === 400 || response.status === 404)) {
         ElNotification({
             title: 'Error',
@@ -20,18 +21,41 @@ function handleError(error) {
     throw error;
 }
 
-export const patientStore = defineStore('patient', {
+export const appointmentStore = defineStore('appointment', {
     state: () => ({
         loading: false,
-        patients: []
+        appointments: [],
+        appointmentData: {},
+        slots: []
     }),
 
     actions: {
         async GET_ALL(params) {
             return await axios
-                .get('patients', { params: params })
+                .get('appointments', { params: params })
                 .then((e) => {
-                    this.patients = e.data.data
+                    this.appointments = e.data
+                    return e
+                })
+                .catch((error) => {
+                    return error
+                })
+        },
+        async CREATE_APPOINTMENT(body) {
+            return await axios
+                .post('appointments', body)
+                .then((e) => {
+                    return e
+                })
+                .catch((error) => {
+                    return error
+                })
+        },
+        async GET_SLOTS(params) {
+            return await axios
+                .get('appointments/slots', { params: params })
+                .then((e) => {
+                    this.slots = e.data
                     return e
                 })
                 .catch((error) => {
@@ -40,48 +64,21 @@ export const patientStore = defineStore('patient', {
         },
         async GET_BY_ID(id) {
             return await axios
-                .get(`patients/${id}`)
+                .get(`appointments/${id}`)
                 .then((e) => {
+                    this.appointmentData = e.data
                     return e
                 })
                 .catch((error) => {
                     return error
                 })
-        },
-        async CREATE_PATIENT(body) {
-            return await axios
-                .post('patients', body)
-                .then((e) => {
-                    return e
-                })
-                .catch((error) => {
-                    return error
-                })
-        },
-        async UPDATE_PATIENT(id, body) {
-            return await axios
-                .put(`patients/${id}`, body)
-                .then((e) => {
-                    return e
-                })
-                .catch((error) => {
-                    return error
-                })
-        },
-        async DELETE_PATIENT(id) {
-            return await axios
-                .delete(`patients/${id}`)
-                .then((e) => {
-                    return e
-                })
-                .catch((error) => {
-                    return error
-                })
-        },
+        }
 
     },
 
     getters: {
-        getPatients: (state) => state.patients,
+        getAppointment: (state) => state.appointments,
+        getAppointmentData: (state) => state.appointmentData,
+        getSlots: (state) => state.slots
     },
 });

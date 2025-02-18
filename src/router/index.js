@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../pages/Dashboard.vue';
 import Service from '../pages/service/Index.vue';
 import Patient from '../pages/patient/Index.vue';
+import PatientShow from '../pages/patient/Show.vue';
+import Appointment from '../pages/appointment/Index.vue';
+import AppointmentShow from '../pages/appointment/Show.vue';
 
 import Login from '../pages/login/Index.vue';
 import MainLayout from '../layouts/MainLayout.vue';
@@ -31,6 +34,24 @@ const routes = [
         component: Patient,
         meta: { name: 'patient' },
       },
+      {
+        path: '/patient/:id',
+        name: 'patient-show',
+        component: PatientShow,
+        meta: { name: 'patient' },
+      },
+      {
+        path: '/appointments',
+        name: 'appointments',
+        component: Appointment,
+        meta: { name: 'appointments' },
+      },
+      {
+        path: '/appointments/:id',
+        name: 'appointments-show',
+        component: AppointmentShow,
+        meta: { name: 'appointments' },
+      }
     ],
   },
   {
