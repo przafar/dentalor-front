@@ -113,26 +113,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
-import { patientStore } from '@/store/patient'
+import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { patientStore } from '@/store/patient';
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus';
 import CreateForm from "../patient/components/FormCreate.vue";
 import UpdateForm from "../patient/components/FormUpdate.vue";
 import Pagination from "@/components/Pagination.vue";
 
-const store = patientStore()
+const store = patientStore();
 const loading = ref(false);
 const createPatientDrawer = ref(false);
 const updatePatientDrawer = ref(false);
 
 const selectedData = ref(null);
 
+// 🔹 Параметры пагинации
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalItems = computed(() => store.patientsPagination?.total || 0);
-
 const getAllPatients = computed(() => store.getPatients);
 
+// 🔹 Функция загрузки списка пациентов
 const fetchFormController = async () => {
   loading.value = true;
   try {
@@ -148,17 +149,23 @@ const fetchFormController = async () => {
   }
 };
 
+// 🔹 Обновление данных при изменении страницы или размера страницы
+watch([currentPage, pageSize], () => {
+  fetchFormController();
+});
+
+// 🔹 Загружаем данные при монтировании компонента
 onMounted(fetchFormController);
 
-const handlePageChange = async (page) => {
+// 🔹 Обработчик смены страницы
+const handlePageChange = (page) => {
   currentPage.value = page;
-  await fetchFormController();
 };
 
-const handlePageSizeChange = async (newSize) => {
+// 🔹 Обработчик смены размера страницы
+const handlePageSizeChange = (newSize) => {
   pageSize.value = newSize;
-  currentPage.value = 1;
-  await fetchFormController();
+  currentPage.value = 1; // Сбрасываем на первую страницу
 };
 
 const openEditDrawer = (data) => {
@@ -166,7 +173,7 @@ const openEditDrawer = (data) => {
   updatePatientDrawer.value = true;
 };
 
-// Удаление пациента
+// 🔹 Удаление пациента
 const confirmDelete = async (data) => {
   try {
     await ElMessageBox.confirm(
@@ -210,7 +217,6 @@ const handleCreateSuccess = async () => {
   await fetchFormController();
   createPatientDrawer.value = false;
 };
-
 </script>
 <style scoped>
 .filters {
