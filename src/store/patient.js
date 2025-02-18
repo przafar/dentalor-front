@@ -23,7 +23,8 @@ function handleError(error) {
 export const patientStore = defineStore('patient', {
     state: () => ({
         loading: false,
-        patients: []
+        patients: [],
+        patientPagiantion: {}
     }),
 
     actions: {
@@ -32,6 +33,7 @@ export const patientStore = defineStore('patient', {
                 .get('patients', { params: params })
                 .then((e) => {
                     this.patients = e.data.data
+                    this.patientPagination = e.data.pagination
                     return e
                 })
                 .catch((error) => {
@@ -83,5 +85,6 @@ export const patientStore = defineStore('patient', {
 
     getters: {
         getPatients: (state) => state.patients,
+        getPatientPagination: (state) => state.patientPagination
     },
 });
