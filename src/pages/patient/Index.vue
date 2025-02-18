@@ -71,8 +71,16 @@
           </el-table-column>
         </el-table>
 
-
+        <Pagination
+            class="mt-4"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            :total-items="totalItems"
+            @page-changed="handlePageChange"
+            @size-changed="handlePageSizeChange"
+        />
       </div>
+
     </div>
 
     <el-drawer
@@ -110,51 +118,55 @@ import { patientStore } from '@/store/patient'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus';
 import CreateForm from "../patient/components/FormCreate.vue";
 import UpdateForm from "../patient/components/FormUpdate.vue";
-import FormFilter from "@/pages/patient/components/FormFilter.vue";
-
+import Pagination from "@/components/Pagination.vue";
 
 const store = patientStore()
 const loading = ref(false);
 const createPatientDrawer = ref(false);
 const updatePatientDrawer = ref(false);
 
-const selectedData = ref()
+const selectedData = ref(null);
 
-const filters = reactive({
-  value: '',
-});
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalItems = computed(() => store.patientsPagination?.total || 0);
 
-
-const getAllPatients = computed(() => store.getPatients)
-
-
-onMounted(async () => {
-  await fetchFormController();
-});
-
-
-const formatGender = (row) => {
-  return row.gender === "male" ? "Мужской" : row.gender === "female" ? "Женский" : "Не указан";
-};
+const getAllPatients = computed(() => store.getPatients);
 
 const fetchFormController = async () => {
   loading.value = true;
-
   try {
-    const res = await store.GET_ALL();
-
+    await store.GET_ALL({
+      page: currentPage.value,
+      per_page: pageSize.value
+    });
   } catch (error) {
-    ElMessage.error(t('failedToLoadForms'));
+    ElMessage.error("Ошибка загрузки списка пациентов");
     console.error(error);
   } finally {
     loading.value = false;
   }
 };
+
+onMounted(fetchFormController);
+
+const handlePageChange = async (page) => {
+  currentPage.value = page;
+  await fetchFormController();
+};
+
+const handlePageSizeChange = async (newSize) => {
+  pageSize.value = newSize;
+  currentPage.value = 1;
+  await fetchFormController();
+};
+
 const openEditDrawer = (data) => {
   selectedData.value = data;
   updatePatientDrawer.value = true;
 };
 
+// Удаление пациента
 const confirmDelete = async (data) => {
   try {
     await ElMessageBox.confirm(
@@ -193,18 +205,11 @@ const handleEditSuccess = async () => {
   await fetchFormController();
   updatePatientDrawer.value = false;
 };
+
 const handleCreateSuccess = async () => {
   await fetchFormController();
   createPatientDrawer.value = false;
 };
-
-
-const updateFilters = (newFilters) => {
-  Object.assign(filters, newFilters);
-  fetchFormController();
-};
-
-
 
 </script>
 <style scoped>
