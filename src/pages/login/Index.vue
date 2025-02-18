@@ -86,7 +86,7 @@ const handleLogin = () => {
           message: 'You have logged in successfully!',
           type: 'success',
         });
-        router.push('/dashboard'); // Redirect after successful login
+        router.push('/patient'); // Redirect after successful login
       } catch (error) {
         ElNotification({
           title: 'Error',
