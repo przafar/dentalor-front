@@ -31,6 +31,7 @@ export const authStore = defineStore('auth', {
 
         localStorage.setItem('token', accessToken);
         localStorage.setItem('user', JSON.stringify(decodedToken));
+        localStorage.setItem('user', JSON.stringify(decodedToken));
 
         this.user.token = accessToken;
         this.user.role = decodedToken.role;

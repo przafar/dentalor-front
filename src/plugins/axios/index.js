@@ -16,12 +16,16 @@ const BASE_URL =
 
 
 instance.interceptors.request.use((config) => {
+  let user = JSON.parse(localStorage.getItem('user'));
   const token = localStorage.getItem('token');
 
   config.headers = {
     ...config.headers,
   };
-
+  console.log(user, "USEr")
+  if (user) {
+    config.headers['organization-id'] = user?.organization?.id;
+  }
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

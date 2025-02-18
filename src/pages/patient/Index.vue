@@ -1,137 +1,208 @@
 <template>
-  <el-container>
-    <el-header class="p-4">
-     <div class="mb-4 flex justify-between items-center">
-      <div>
-        <h4 class="page_title">Пациенты</h4>
-      </div>
-      <div>
-          <el-button id="el_button" type="success" icon="el-icon-circle-plus" @click="addPatient">
-          <i class="fa-solid fa-plus mr-2"></i>
-          Добавить пациента
-        </el-button>
+  <div>
+    <div class="pt-2 border-b  border-[#eceeef]">
+      <div class="relative rounded-lg pb-2 pl-4">
+        <el-page-header @back="$router.push('/')" class="flex items-center">
+          <template #content>
+            <h1 class="text-md font-semibold text-gray-800">Пациенты</h1>
+          </template>
+        </el-page-header>
       </div>
     </div>
-    </el-header>
-    <el-main class="mt-5">
-
-      <el-row :gutter="20" class="filters">
-        <el-col :span="6">
-          <el-input v-model="filters.lastName" placeholder="Фамилия" clearable />
-        </el-col>
-        <el-col :span="6">
-          <el-input v-model="filters.firstName" placeholder="Имя" clearable />
-        </el-col>
-        <el-col :span="6">
-          <el-input v-model="filters.patronymic" placeholder="Отчество" clearable />
-        </el-col>
-        <el-col :span="6">
-          <el-button type="primary" @click="applyFilter">Фильтр</el-button>
-          <el-button @click="clearFilter" type="warning">Очистить фильтр</el-button>
-        </el-col>
-      </el-row>
-
-      <el-table
-        :data="filteredPatients"
-        border
-        style="width: 100%; margin-top: 20px"
-      >
-        <el-table-column prop="id" label="ID" min-width="50" />
-        <el-table-column prop="fullName" label="Полное имя" />
-        <el-table-column prop="document" label="Документ" />
-        <el-table-column prop="birthYear" label="Год рождения" min-width="120" />
-        <el-table-column prop="phone" label="Номер телефона" min-width="150" />
-        <el-table-column label="Действия" width="150">
-          <template #default="scope">
-            <div class="flex items-center"> 
-            <el-button type="info" size="small" @click="openShowDrawer(row)">
-              <i class="fa-solid fa-eye"></i>
-            </el-button>
-            <el-button type="primary" size="small" @click="openEditDrawer(row)">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </el-button>
-            <el-button type="danger" size="small" @click="handleDelete(row)">
-              <i class="fa-solid fa-trash-can"></i>
+    <div class="flex flex-col p-4">
+      <div >
+        <div class="mb-4 flex justify-between items-center">
+          <div>
+          </div>
+          <div>
+            <el-button class="rounded-md" id="el_button" type="success" icon="el-icon-circle-plus" @click="createPatientDrawer = true">
+              <i class="fa-solid fa-plus mr-2"></i>
+              Добавить пациента
             </el-button>
           </div>
-          </template>
-        </el-table-column>
-      </el-table>
+        </div>
+<!--        <div class="bg-[#]">-->
+<!--          <FormFilter :initialFilters="filters" @update:filters="updateFilters"  />-->
+<!--        </div>-->
+      </div>
+      <div>
 
-      <el-pagination
-        background
-        layout="prev, pager, next"
-        :total="filteredPatients.length"
-        :page-size="perPage"
-        @current-change="handlePageChange"
-        :current-page.sync="currentPage"
-        class="pagination"
-        style="margin-top: 20px"
+        <el-table
+            :data="getAllPatients"
+            class="custom-table"
+        >
+          <el-table-column prop="id" label="ID" min-width="20" />
+
+          <el-table-column prop="full_name" label="ФИО" />
+
+          <el-table-column prop="gender" :formatter="formatGender" label="Пол" />
+
+          <el-table-column label="Год рождения" min-width="120">
+            <template #default="scope">
+              <span v-if="scope.row.birth_date">
+                {{ scope.row.birth_date }}
+              </span>
+              <span v-else>-</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Телефон" min-width="100">
+            <template #default="scope">
+              <span>{{ scope.row.phone_number }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Действия" width="150">
+            <template #default="scope">
+              <div class="flex items-center space-x-2">
+                <router-link :to="`/patient/${scope.row.id}`">
+                  <el-button type="info" size="small" class="rounded-md">
+                    <i class="fa-solid fa-eye"></i>
+                  </el-button>
+                </router-link>
+                <el-button type="primary" size="small" @click="openEditDrawer(scope.row)" class="rounded-md">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </el-button>
+                <el-button type="danger" size="small" @click="confirmDelete(scope.row)" class="rounded-md">
+                  <i class="fa-solid fa-trash-can"></i>
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+
+
+      </div>
+    </div>
+
+    <el-drawer
+        title="Создать пациента"
+        v-model="createPatientDrawer"
+        direction="rtl"
+        size="40%"
+        destroy-on-close
+    >
+      <CreateForm
+          @success="handleEditSuccess"
       />
-    </el-main>
-  </el-container>
+    </el-drawer>
+
+    <el-drawer
+        title="Редактирования пациента"
+        v-model="updatePatientDrawer"
+        direction="rtl"
+        size="40%"
+        destroy-on-close
+    >
+      <UpdateForm
+          :initialData="selectedData"
+          @success="handleEditSuccess"
+      />
+    </el-drawer>
+  </div>
+
+
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      patients: [
-        { id: 299, fullName: "МИЛЕБОЕВ ЗОКИР", document: "Документа нет", birthYear: "25-02-1963", phone: "+(998)93 551-40-31" },
-        { id: 298, fullName: "БОРИЕВ МИРСАИД", document: "Документа нет", birthYear: "01-06-1997", phone: "+(998)77 777-78-55" },
+<script setup>
+import { ref, reactive, onMounted, computed } from 'vue';
+import { patientStore } from '@/store/patient'
+import { ElNotification, ElMessage, ElMessageBox } from 'element-plus';
+import CreateForm from "../patient/components/FormCreate.vue";
+import UpdateForm from "../patient/components/FormUpdate.vue";
+import FormFilter from "@/pages/patient/components/FormFilter.vue";
 
-      ],
-      filters: {
-        lastName: "",
-        firstName: "",
-        patronymic: ""
-      },
-      currentPage: 1,
-      perPage: 10,
-    };
-  },
-  computed: {
-    filteredPatients() {
-      const filtered = this.patients.filter(patient => {
-        return (
-          (!this.filters.lastName || patient.fullName.includes(this.filters.lastName)) &&
-          (!this.filters.firstName || patient.fullName.includes(this.filters.firstName)) &&
-          (!this.filters.patronymic || patient.fullName.includes(this.filters.patronymic))
-        );
+
+const store = patientStore()
+const loading = ref(false);
+const createPatientDrawer = ref(false);
+const updatePatientDrawer = ref(false);
+
+const selectedData = ref()
+
+const filters = reactive({
+  value: '',
+});
+
+
+const getAllPatients = computed(() => store.getPatients)
+
+
+onMounted(async () => {
+  await fetchFormController();
+});
+
+
+const formatGender = (row) => {
+  return row.gender === "male" ? "Мужской" : row.gender === "female" ? "Женский" : "Не указан";
+};
+
+const fetchFormController = async () => {
+  loading.value = true;
+
+  try {
+    const res = await store.GET_ALL();
+
+  } catch (error) {
+    ElMessage.error(t('failedToLoadForms'));
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
+};
+const openEditDrawer = (data) => {
+  selectedData.value = data;
+  updatePatientDrawer.value = true;
+};
+
+const confirmDelete = async (data) => {
+  try {
+    await ElMessageBox.confirm(
+        "Вы уверены, что хотите удалить этого пациента?",
+        "Подтверждение удаления",
+        {
+          confirmButtonText: "Удалить",
+          cancelButtonText: "Отмена",
+          type: "warning",
+        }
+    );
+
+    await store.DELETE_PATIENT(data.id);
+    await fetchFormController();
+
+    ElNotification({
+      title: "Успешно",
+      message: "Пациент успешно удален.",
+      type: "success",
+      duration: 3000,
+    });
+  } catch (error) {
+    if (error !== "cancel") {
+      ElNotification({
+        title: "Ошибка",
+        message: "Произошла ошибка при удалении.",
+        type: "error",
+        duration: 3000,
       });
-
-      const start = (this.currentPage - 1) * this.perPage;
-      return filtered.slice(start, start + this.perPage);
-    }
-  },
-  methods: {
-    applyFilter() {
-      this.currentPage = 1;
-    },
-    clearFilter() {
-      this.filters = { lastName: "", firstName: "", patronymic: "" };
-      this.currentPage = 1;
-    },
-    addPatient() {
-      this.$message.success("Добавление нового пациента");
-    },
-    viewPatient(id) {
-      this.$message.info(`Просмотр пациента с ID: ${id}`);
-    },
-    editPatient(id) {
-      this.$message.warning(`Редактирование пациента с ID: ${id}`);
-    },
-    deletePatient(id) {
-      this.patients = this.patients.filter(patient => patient.id !== id);
-      this.$message.success("Пациент удалён");
-    },
-    handlePageChange(page) {
-      this.currentPage = page;
+      console.error("Ошибка при удалении:", error);
     }
   }
 };
-</script>
 
+const handleEditSuccess = async () => {
+  await fetchFormController();
+  updatePatientDrawer.value = false;
+};
+
+
+const updateFilters = (newFilters) => {
+  Object.assign(filters, newFilters);
+  fetchFormController();
+};
+
+
+
+</script>
 <style scoped>
 .filters {
   margin-bottom: 20px;
@@ -144,5 +215,51 @@ export default {
 }
 #el_button {
   padding-left: 0;
+}
+
+.custom-table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Стили заголовка (header) */
+::v-deep(.el-table__header-wrapper thead th) {
+  background-color: #f3f4f6; /* Светло-серый фон */
+  color: #374151; /* Темный текст */
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Закругленные углы таблицы */
+::v-deep(.el-table__inner-wrapper) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Стили строк таблицы */
+::v-deep(.el-table__row) {
+  transition: background 0.2s ease-in-out;
+}
+
+/* Подсветка строки при наведении */
+::v-deep(.el-table__row:hover) {
+  background-color: #f9fafb;
+
+}
+
+/* Обрезаем границы у первой и последней строки */
+::v-deep(.el-table__row:first-child td:first-child) {
+  border-top-left-radius: 12px;
+}
+::v-deep(.el-table__row:first-child td:last-child) {
+  border-top-right-radius: 12px;
+}
+::v-deep(.el-table__row:last-child td:first-child) {
+  border-bottom-left-radius: 12px;
+}
+::v-deep(.el-table__row:last-child td:last-child) {
+  border-bottom-right-radius: 12px;
 }
 </style>

@@ -37,6 +37,7 @@
     --el-menu-hover-bg-color: #385df037;
     --hover-color: #385df037;
     --el-menu-icon-width: 38px;
+    --el-border-radius-base: 8px;
 
 }
 body {
@@ -81,4 +82,12 @@ body {
     font-size: 22px;
     font-weight: 600;
     color: var(--color-black);
+}
+:deep(.el-tabs__content) {
+    overflow: visible !important;
+}
+.card-shadow {
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
 }

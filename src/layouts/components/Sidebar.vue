@@ -2,7 +2,7 @@
   <el-menu
     :default-active="$router.currentRoute.value.meta.name"
     default-active="2"
-    class="el-menu-vertical-demo bg-[#f9fafc]"
+    class="el-menu-vertical-demo bg-[#f9fbfc]"
     :collapse="store.isCollapse"
     @open="handleOpen"
     @close="handleClose"
@@ -38,6 +38,13 @@
         <i class="fa-solid fa-user text-lg"></i>
       </el-icon>
       <template #title>Пациенты</template>
+    </el-menu-item>
+
+    <el-menu-item index="appointments" :route="{ name: 'appointments' }" class="text-[#495265]">
+      <el-icon class="text-lg">
+        <i class="fa-solid fa-calendar-check"></i>
+      </el-icon>
+      <template #title>Запись на приём</template>
     </el-menu-item>
   </el-menu>
 </template>
