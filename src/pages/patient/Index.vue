@@ -123,7 +123,7 @@ const selectedData = ref(null);
 
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalItems = computed(() => store.patientsPagination?.total || 0);
+const totalItems = computed(() => store.getPatientPagination?.total || 0);
 const getAllPatients = computed(() => store.getPatients);
 
 const fetchFormController = async () => {
