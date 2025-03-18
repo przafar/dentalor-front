@@ -93,8 +93,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { servicesStore } from '@/store/services';
-import { appointmentStore } from '@/store/appointment';
-import { practitionerRoleStore } from '@/store/practitionerRole';
+import { appointmentStore } from '@/store/appointments';
+import { practitionerRoleStore } from '@/store/practitionerRoles';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 

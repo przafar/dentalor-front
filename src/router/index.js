@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../pages/Dashboard.vue';
 import Service from '../pages/service/Index.vue';
-import Patient from '../pages/patient/Index.vue';
-import PatientShow from '../pages/patient/Show.vue';
+import Patients from '../pages/patients/Index.vue';
+import PatientShow from '../pages/patients/Show.vue';
 import Appointment from '../pages/appointment/Index.vue';
 import AppointmentShow from '../pages/appointment/Show.vue';
-
+import Organizations from '../pages/organizations/Index.vue';
+import Practitioners from '../pages/practitioners/Index.vue';
+import PractitionerShow from '../pages/practitioners/Show.vue'
 import Login from '../pages/login/Index.vue';
 import MainLayout from '../layouts/MainLayout.vue';
 import EmptyLayout from '../layouts/EmptyLayout.vue';
@@ -20,7 +22,25 @@ const routes = [
         path: '', 
         name: 'Dashboard',
         component: Dashboard,
-        meta: { name: 'Dashboard' },
+        meta: { name: 'dashboard' },
+      },
+      {
+        path: '/organizations',
+        name: 'organizations',
+        component: Organizations,
+        meta: { name: 'organizations' },
+      },
+      {
+        path: '/practitioners',
+        name: 'practitioners',
+        component: Practitioners,
+        meta: { name: 'practitioners' },
+      },
+      {
+        path: '/practitioner/:id',
+        name: 'practitioner-show',
+        component: PractitionerShow,
+        meta: { name: 'practitioners' },
       },
       {
         path: '/service', 
@@ -29,10 +49,10 @@ const routes = [
         meta: { name: 'service' },
       },
       {
-        path: '/patient', 
-        name: 'patient',
-        component: Patient,
-        meta: { name: 'patient' },
+        path: '/patients',
+        name: 'patients',
+        component: Patients,
+        meta: { name: 'patients' },
       },
       {
         path: '/patient/:id',
@@ -79,7 +99,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     next({ name: 'Login' });
   } else if (to.meta.requiresGuest && isAuthenticated) {
-    next({ name: 'service' });
+    next({ name: 'services' });
   } else {
     next();
   }
