@@ -4,7 +4,7 @@
       <div class="relative rounded-lg pb-2 pl-4">
         <el-page-header @back="$router.push('/')" class="flex items-center">
           <template #content>
-            <h1 class="text-md font-semibold text-gray-800">Пациенты</h1>
+            <h1 class="text-md font-semibold text-gray-800">Организации</h1>
           </template>
         </el-page-header>
       </div>
@@ -19,36 +19,25 @@
                 id="el_button"
                 type="success"
                 icon="el-icon-circle-plus"
-                @click="createPatientDrawer = true"
+                @click="createOrganizationDrawer = true"
             >
               <i class="fa-solid fa-plus mr-2"></i>
-              Добавить пациента
+              Добавить организацию
             </el-button>
           </div>
         </div>
       </div>
       <div>
-        <el-table :data="getAllPatients" class="custom-table">
-          <el-table-column prop="id" label="ID" min-width="20" />
-          <el-table-column prop="full_name" label="ФИО" />
-          <el-table-column prop="gender" :formatter="formatGender" label="Пол" />
-          <el-table-column label="Год рождения" min-width="120">
-            <template #default="scope">
-              <span v-if="scope.row.birth_date">
-                {{ scope.row.birth_date }}
-              </span>
-              <span v-else>-</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Телефон" min-width="100">
-            <template #default="scope">
-              <span>{{ scope.row.phone_number }}</span>
-            </template>
-          </el-table-column>
+        <el-table :data="getAllOrganizations" class="custom-table">
+          <el-table-column prop="id" label="ID" min-width="50" />
+          <el-table-column prop="name_ru" label="Название (RU)" />
+          <el-table-column prop="org_type" label="Тип организации" min-width="150" />
+          <el-table-column prop="phone_number" label="Телефон" min-width="120" />
+          <el-table-column prop="address" label="Адрес" min-width="150" />
           <el-table-column label="Действия" width="150">
             <template #default="scope">
               <div class="flex items-center space-x-2">
-                <router-link :to="`/patient/${scope.row.id}`">
+                <router-link :to="`/organization/${scope.row.id}`">
                   <el-button type="info" size="small" class="rounded-md">
                     <i class="fa-solid fa-eye"></i>
                   </el-button>
@@ -85,9 +74,10 @@
       </div>
     </div>
 
+    <!-- Drawer для создания организации -->
     <el-drawer
-        title="Создать пациента"
-        v-model="createPatientDrawer"
+        title="Создать организацию"
+        v-model="createOrganizationDrawer"
         direction="rtl"
         size="40%"
         destroy-on-close
@@ -95,9 +85,10 @@
       <CreateForm @success="handleCreateSuccess" />
     </el-drawer>
 
+    <!-- Drawer для редактирования организации -->
     <el-drawer
-        title="Редактирования пациента"
-        v-model="updatePatientDrawer"
+        title="Редактирование организации"
+        v-model="updateOrganizationDrawer"
         direction="rtl"
         size="40%"
         destroy-on-close
@@ -109,43 +100,41 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { patientStore } from "@/store/patient";
+import { organizationsStore } from "@/store/organizations";
 import { ElNotification, ElMessage, ElMessageBox } from "element-plus";
-import CreateForm from "../patient/components/FormCreate.vue";
-import UpdateForm from "../patient/components/FormUpdate.vue";
+import CreateForm from "../organizations/components/FormCreate.vue";
+import UpdateForm from "../organizations/components/FormUpdate.vue";
 import Pagination from "@/components/Pagination.vue";
 
-const store = patientStore();
+const store = organizationsStore();
 const loading = ref(false);
-const createPatientDrawer = ref(false);
-const updatePatientDrawer = ref(false);
+const createOrganizationDrawer = ref(false);
+const updateOrganizationDrawer = ref(false);
 const selectedData = ref(null);
 
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalItems = computed(() => store.getPatientPagination?.total || 0);
-const getAllPatients = computed(() => store.getPatients);
+const totalItems = computed(() => store.getOrganizationPagination?.total || 0);
+const getAllOrganizations = computed(() => store.getOrganizations);
 
-const fetchFormController = async () => {
+const fetchOrganizations = async () => {
   loading.value = true;
   try {
-    await store.GET_ALL({
+    await store.GET_LIST_OF_ORGANIZATIONS({
       page: currentPage.value,
-      per_page: pageSize.value
+      per_page: pageSize.value,
     });
   } catch (error) {
-    ElMessage.error("Ошибка загрузки списка пациентов");
+    ElMessage.error("Ошибка загрузки списка организаций");
     console.error(error);
   } finally {
     loading.value = false;
   }
 };
 
-watch([currentPage, pageSize], () => {
-  fetchFormController();
-});
+watch([currentPage, pageSize], fetchOrganizations);
 
-onMounted(fetchFormController);
+onMounted(fetchOrganizations);
 
 const handlePageChange = (page) => {
   currentPage.value = page;
@@ -156,39 +145,31 @@ const handlePageSizeChange = (newSize) => {
   currentPage.value = 1;
 };
 
-const formatGender = (row) => {
-  return row.gender === "male"
-      ? "Мужской"
-      : row.gender === "female"
-          ? "Женский"
-          : "Не указан";
-};
-
 const openEditDrawer = (data) => {
   selectedData.value = data;
-  updatePatientDrawer.value = true;
+  updateOrganizationDrawer.value = true;
 };
 
 const confirmDelete = async (data) => {
   try {
     await ElMessageBox.confirm(
-        "Вы уверены, что хотите удалить этого пациента?",
+        "Вы уверены, что хотите удалить эту организацию?",
         "Подтверждение удаления",
         {
           confirmButtonText: "Удалить",
           cancelButtonText: "Отмена",
-          type: "warning"
+          type: "warning",
         }
     );
 
-    await store.DELETE_PATIENT(data.id);
-    await fetchFormController();
+    await store.DELETE_ORGANIZATION(data.id);
+    await fetchOrganizations();
 
     ElNotification({
       title: "Успешно",
-      message: "Пациент успешно удален.",
+      message: "Организация успешно удалена.",
       type: "success",
-      duration: 3000
+      duration: 3000,
     });
   } catch (error) {
     if (error !== "cancel") {
@@ -196,7 +177,7 @@ const confirmDelete = async (data) => {
         title: "Ошибка",
         message: "Произошла ошибка при удалении.",
         type: "error",
-        duration: 3000
+        duration: 3000,
       });
       console.error("Ошибка при удалении:", error);
     }
@@ -204,13 +185,13 @@ const confirmDelete = async (data) => {
 };
 
 const handleEditSuccess = async () => {
-  await fetchFormController();
-  updatePatientDrawer.value = false;
+  await fetchOrganizations();
+  updateOrganizationDrawer.value = false;
 };
 
 const handleCreateSuccess = async () => {
-  await fetchFormController();
-  createPatientDrawer.value = false;
+  await fetchOrganizations();
+  createOrganizationDrawer.value = false;
 };
 </script>
 

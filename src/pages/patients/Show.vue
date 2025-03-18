@@ -92,9 +92,9 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import { patientStore } from "@/store/patient";
+import { patientStore } from "@/store/patients";
 import { servicesStore } from "@/store/services";
-import { appointmentStore } from "@/store/appointment";
+import { appointmentStore } from "@/store/appointments";
 import CreateAppointmentForm from "./components/CreateAppointment.vue";
 import { ElMessage } from "element-plus";
 import moment from "moment";

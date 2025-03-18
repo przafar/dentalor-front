@@ -16,4 +16,5 @@ app.use(router)
 app.use(ElementPlus, {
   locale: ruRu,
 });
+
 app.mount('#app')

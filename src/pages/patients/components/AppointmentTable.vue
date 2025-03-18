@@ -65,8 +65,8 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import { patientStore } from "@/store/patient";
-import { appointmentStore } from "@/store/appointment";
+import { patientStore } from "@/store/patients";
+import { appointmentStore } from "@/store/appointments";
 import { ElMessage } from "element-plus";
 import moment from "moment";
 import Pagination from '@/components/Pagination.vue';

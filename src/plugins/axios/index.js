@@ -2,9 +2,9 @@ import axios from 'axios';
 import config from '../../config';
 
 const BASE_URL =
-  config.ENV === 'dev' ? config.API_BASE_URL_DEV : config.API_BASE_URL_PROD;
+    config.ENV === 'dev' ? config.API_BASE_URL_DEV : config.API_BASE_URL_PROD;
 
-  const instance = axios.create({
+const instance = axios.create({
   baseURL: BASE_URL,
   timeout: 200000,
   headers: {
@@ -13,8 +13,6 @@ const BASE_URL =
   },
 });
 
-
-
 instance.interceptors.request.use((config) => {
   let user = JSON.parse(localStorage.getItem('user'));
   const token = localStorage.getItem('token');
@@ -22,7 +20,7 @@ instance.interceptors.request.use((config) => {
   config.headers = {
     ...config.headers,
   };
-  console.log(user, "USEr")
+  console.log(user, "USEr");
   if (user) {
     config.headers['organization-id'] = user?.organization?.id;
   }
@@ -31,4 +29,15 @@ instance.interceptors.request.use((config) => {
   }
   return config;
 });
+
+instance.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        window.location.href = '/login';
+      }
+      return Promise.reject(error);
+    }
+);
+
 export default instance;

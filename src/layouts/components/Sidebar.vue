@@ -9,40 +9,57 @@
     @select="navigateTo"
   >
   
-  <div class="menu-header pt-4 pl-4 h-14 mb-4 flex justify-between items-center">
-     <div class="flex items-center">
-        <img class="w-6" src="../../assets/image/dentalor-min.png" alt="">
-        <span v-if="!store.isCollapse" class="menu-title text-xl ml-2 text-[#385df0] font-bold">Denta Lor</span>
-     </div>
-     
-  </div>
+    <div class="menu-header pt-4 pl-4 h-14 mb-4 flex justify-between items-center">
+       <div class="flex items-center">
+          <img class="w-6" src="../../assets/image/dentalor-min.png" alt="">
+          <span v-if="!store.isCollapse" class="menu-title text-xl ml-2 text-[#385df0] font-bold">Denta Lor</span>
+       </div>
 
-  <el-menu-item index="Dashboard" :route="{ name: 'Dashboard' }" class="text-[#495265]">
-    <el-icon class="text-lg">
-      <i class="fa-solid fa-house text-lg"></i>
-    </el-icon>
-    
-    <template #title>Главная</template>
-  </el-menu-item>
-    
-    <el-menu-item index="service" :route="{ name: 'service' }" class="text-[#495265]">
+    </div>
+
+    <el-menu-item v-if="vCan.can('dashboard_index', 'all')" index="dashboard" :route="{ name: 'dashboard' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <i class="fa-solid fa-clipboard-list text-lg"></i>
+        <Icon icon="ic:round-home" class="text-3xl" :ssr="true" />
+      </el-icon>
+
+      <template #title>Главная</template>
+    </el-menu-item>
+
+    <el-menu-item v-if="vCan.can('organization_index', 'all')" index="organizations" :route="{ name: 'organizations' }" class="text-[#495265]">
+      <el-icon class="text-lg">
+        <Icon icon="healthicons:hospital-24px" class="text-3xl" :ssr="true" />
+      </el-icon>
+
+      <template #title>Организация</template>
+    </el-menu-item>
+
+    <el-menu-item v-if="vCan.can('practitioner_index', 'all')" index="practitioners" :route="{ name: 'practitioners' }" class="text-[#495265]">
+      <el-icon class="text-lg">
+        <Icon icon="ic:round-supervisor-account" class="text-3xl" :ssr="true" />
+      </el-icon>
+
+      <template #title>Сотрудники</template>
+    </el-menu-item>
+    
+    <el-menu-item v-if="vCan.can('service_index', 'all')" index="service" :route="{ name: 'service' }" class="text-[#495265]">
+      <el-icon class="text-lg">
+        <Icon icon="ic:round-account-tree" class="text-3xl" :ssr="true" />
+
       </el-icon>
       
       <template #title>Сервисы</template>
     </el-menu-item>
 
-    <el-menu-item index="patient" :route="{ name: 'patient' }" class="text-[#495265]">
+    <el-menu-item v-if="vCan.can('patient_index', 'all')" index="patients" :route="{ name: 'patients' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <i class="fa-solid fa-user text-lg"></i>
+        <Icon icon="ic:baseline-person-add-alt-1" class="text-3xl" :ssr="true" />
       </el-icon>
       <template #title>Пациенты</template>
     </el-menu-item>
 
-    <el-menu-item index="appointments" :route="{ name: 'appointments' }" class="text-[#495265]">
+    <el-menu-item v-if="vCan.can('appointment_index', 'all')" index="appointments" :route="{ name: 'appointments' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <i class="fa-solid fa-calendar-check"></i>
+        <Icon icon="healthicons:i-exam-multiple-choice" class="text-3xl" :ssr="true" />
       </el-icon>
       <template #title>Запись на приём</template>
     </el-menu-item>
@@ -52,10 +69,18 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router';
+import { Icon } from "@iconify/vue";
 import { authStore } from '../../store/auth';
+
+import { defineAbilitiesFor } from '../../plugins/ability';
 
 const router = useRouter();
 const store = authStore();
+
+const { user } = store;
+
+const vCan = defineAbilitiesFor(user?.roles[0]);
+console.log(user?.roles[0]?.role, 'user?.roles');
 
 const getIsCollapse = () => store.getIsCollapse
 
