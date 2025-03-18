@@ -29,7 +29,6 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <!-- Кастомный ввод даты рождения -->
           <el-form-item label="Дата рождения" prop="birthDate">
             <el-input
                 v-model="state.input_date"
@@ -45,7 +44,6 @@
                 </el-icon>
               </template>
             </el-input>
-            <!-- Скрытый date-picker для выбора даты -->
             <el-date-picker
                 ref="datePickerRef"
                 v-model:visible="state.datePickerVisible"
@@ -71,7 +69,6 @@
 
       <el-row :gutter="20">
         <el-col>
-          <!-- Поле номера телефона с v-maska -->
           <el-form-item label="Номер телефона" prop="phoneInput">
             <el-input
                 v-model="phoneInput"
@@ -114,12 +111,11 @@ import moment from "moment";
 const emit = defineEmits(["success"]);
 const store = patientStore();
 
-// Основная модель формы для отправки данных
 const form = reactive({
   firstName: "",
   lastName: "",
-  phoneNumber: "", // сюда запишется «сырой» номер (только цифры)
-  birthDate: "",   // синхронизируется с state.birth_date
+  phoneNumber: "",
+  birthDate: "",
   gender: "",
   middleName: "",
   passport: "",
@@ -128,11 +124,10 @@ const form = reactive({
 
 const formRef = ref(null);
 
-// Локальное состояние для кастомного ввода даты
 const state = reactive({
-  birth_date: "",         // выбранная дата в формате DD-MM-YYYY
-  input_date: "",         // текстовое представление даты
-  datePickerVisible: false // управление видимостью date-picker
+  birth_date: "",
+  input_date: "",
+  datePickerVisible: false
 });
 
 // Синхронизация выбранной даты с моделью формы
@@ -170,16 +165,12 @@ const formatBirthDate = () => {
   }
 };
 
-// --- Логика для номера телефона с v-maska ---
-// Здесь phoneInput хранит отформатированное значение, которое видит пользователь.
-// При вводе используется директива v-maska для форматирования.
+
 const phoneInput = ref("+998");
 
-// Функция для получения "сырого" номера (только цифры)
 const getRawPhone = (formatted) => {
   return formatted.replace(/\D/g, "");
 };
-// --- Конец логики для номера телефона ---
 
 const rules = {
   firstName: [
@@ -202,13 +193,12 @@ const rules = {
 const handleSubmit = async () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      // Из форматированного значения получаем "сырой" номер (только цифры)
       form.phoneNumber = getRawPhone(phoneInput.value);
 
       const payload = {
         firstName: form.firstName.toUpperCase(),
         lastName: form.lastName.toUpperCase(),
-        phoneNumber: form.phoneNumber, // Например, "998977584224"
+        phoneNumber: form.phoneNumber,
         birthDate: form.birthDate,
         gender: form.gender,
         middleName: form.middleName.toUpperCase(),
@@ -240,5 +230,4 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-/* Добавьте при необходимости ваши стили */
 </style>
