@@ -11,9 +11,9 @@
       </div>
     </div>
 
-    <div class="p-6 relative w-full">
+    <div class="p-4 relative w-full">
       <!-- Карточка пациента -->
-      <el-card class="rounded-xl mb-6">
+      <el-card class="rounded-lg mb-6">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <el-avatar
@@ -35,7 +35,7 @@
       <el-tabs v-model="activeTab">
         <!-- Информация о пациенте -->
         <el-tab-pane label="Информация о пациенте" name="info">
-          <el-card class="mt-6 rounded-xl card-shadow">
+          <el-card class="mt-6 rounded-lg card-shadow">
             <template #header>
               <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold">Данные пациента</h2>
@@ -60,7 +60,7 @@
 
         <!-- Следующее лечение -->
         <el-tab-pane label="Следующее лечение" name="treatment">
-          <el-card class="mt-6 rounded-xl card-shadow">
+          <el-card class="mt-6 rounded-lg card-shadow">
             <h2 class="text-xl font-semibold">Следующее лечение</h2>
             <p class="text-gray-700 mt-2">Нет запланированных процедур.</p>
           </el-card>
@@ -68,7 +68,7 @@
 
         <!-- Медицинская карта -->
         <el-tab-pane label="Медицинская карта" name="record">
-          <el-card class="mt-6 rounded-xl card-shadow">
+          <el-card class="mt-6 rounded-lg card-shadow">
             <h2 class="text-xl font-semibold">Медицинская карта</h2>
             <p class="text-gray-700 mt-2">Нет данных.</p>
           </el-card>
