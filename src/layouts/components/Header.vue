@@ -9,8 +9,8 @@
     </button>
    </div>
    <header class=" text-black px-4 py-2 h-16 w-full">
-    <div class="container mx-auto flex justify-between items-center">
-      <div class="flex flex-col  ml-4 ">
+    <div class="flex justify-between items-center">
+      <div class="flex flex-col ml-4 ">
         <h5 class="text-base font-bold text-[#385df0]">{{ user?.practitioner?.last_name }} {{ user?.practitioner?.first_name }} {{ user?.practitioner?.middle_name || '' }}</h5>
         <p>{{ user?.organization?.name_en }}</p>
       </div>
