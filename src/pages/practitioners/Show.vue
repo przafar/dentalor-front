@@ -52,6 +52,12 @@
                 <div>{{ role.role || 'Не указано' }}</div>
               </div>
             </div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="font-bold">Сервисы:</div>
+                <div>{{ role.service || 'Не указано' }}</div>
+              </div>
+            </div>
             <div class="mt-2">
               <div class="font-bold">Специальность:</div>
               <div>{{ role.specialty }}</div>
@@ -83,19 +89,31 @@
       <el-form :model="roleForm" ref="roleFormRef" label-width="120px" label-position="top">
         <template v-if="roleUpdateMode">
           <el-form-item label="Логин" prop="login">
-            <el-input v-model="roleForm.login" placeholder="Введите логин" autocomplete="off" />
+            <el-input v-model="roleForm.login" placeholder="Введите логин" autocomplete="new-password" />
           </el-form-item>
           <el-form-item label="Пароль" prop="password">
-            <el-input v-model="roleForm.password" placeholder="Введите пароль" show-password autocomplete="off" />
+            <el-input v-model="roleForm.password" placeholder="Введите пароль" show-password autocomplete="new-password" />
           </el-form-item>
         </template>
         <el-form-item label="Роль" prop="role">
-          <el-select v-model="roleForm.role" placeholder="Выберите роль">
+          <el-select v-model="roleForm.role" placeholder="Выберите роль" multiple>
             <el-option
                 v-for="item in catalog.getRoles"
-                :key="item.id"
+                :key="item.code"
                 :label="item.label"
                 :value="item.code"
+
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Роль" prop="service">
+          <el-select v-model="roleForm.service" placeholder="Выберите роль" multiple>
+            <el-option
+                v-for="item in service.getEncounterClasses"
+                :key="item.code"
+                :label="item.display"
+                :value="item.code"
+
             />
           </el-select>
         </el-form-item>
@@ -142,6 +160,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import axios from "@/plugins/axios/index";
 import { practitionersStore } from "@/store/practitioners";
+import { servicesStore } from "@/store/services.js";
 import { catalogsStore } from "@/store/catalogs.js";
 import { ElMessage } from "element-plus";
 import jwt_decode from "jwt-decode";
@@ -149,6 +168,7 @@ import jwt_decode from "jwt-decode";
 const route = useRoute();
 const practitioner = ref({});
 const catalog = catalogsStore();
+const service = servicesStore();
 const store = practitionersStore();
 
 const loadPractitionerFromToken = () => {
@@ -182,6 +202,7 @@ const fetchPractitioner = async () => {
 onMounted(async () => {
   await fetchPractitioner();
   await catalog.GET_ROLES();
+  await service.GET_LIST_OF_ECOUNTER_CLASSES()
 });
 
 const roleUpdateMode = ref(false);
@@ -193,6 +214,7 @@ const roleForm = ref({
   password: "",
   role: "",
   specialty: "",
+  service: "",
   working_hours: {
     mon: "",
     tue: "",
@@ -211,6 +233,7 @@ const openRoleDialog = () => {
       password: "",
       role: existingRole.role || "",
       specialty: existingRole.specialty || "",
+      service: existingRole.service || "",
       working_hours: {
         mon: existingRole.working_hours?.mon || "09:00-18:00",
         tue: existingRole.working_hours?.tue || "09:00-18:00",
@@ -227,6 +250,7 @@ const openRoleDialog = () => {
       password: "",
       role: "",
       specialty: "",
+      service: "",
       working_hours: {
         mon: "09:00-18:00",
         tue: "09:00-18:00",
@@ -248,9 +272,10 @@ const closeRoleDialog = () => {
 const submitRole = async () => {
   const payload = {
     practitioner_id: practitioner.value.id,
-    role: [roleForm.value.role],
+    role: roleForm.value.role,
     specialty: roleForm.value.specialty,
-    working_hours: roleForm.value.working_hours
+    working_hours: roleForm.value.working_hours,
+    service: roleForm.value.service
   };
 
   if (roleUpdateMode.value && roleId.value) {
@@ -272,6 +297,7 @@ const submitRole = async () => {
       password: "",
       role: "",
       specialty: "",
+      service: "",
       working_hours: {
         mon: "",
         tue: "",
