@@ -9,22 +9,22 @@
         </el-page-header>
       </div>
     </div>
+
+    <FilterForm @apply="applyFilters" @reset="resetFilters" />
+
     <div class="flex flex-col p-4">
-      <div>
-        <div class="mb-4 flex justify-between items-center">
-          <div></div>
-          <div>
-            <el-button
-                class="rounded-md"
-                id="el_button"
-                type="success"
-                icon="el-icon-circle-plus"
-                @click="createPatientDrawer = true"
-            >
-              <i class="fa-solid fa-plus mr-2"></i>
-              Добавить пациента
-            </el-button>
-          </div>
+      <div class="mb-4 flex justify-between items-center">
+        <div></div>
+        <div>
+          <el-button
+              class="rounded-md"
+              id="el_button"
+              type="success"
+              @click="createPatientDrawer = true"
+          >
+            <i class="fa-solid fa-plus mr-2"></i>
+            Добавить пациента
+          </el-button>
         </div>
       </div>
       <div>
@@ -32,11 +32,9 @@
           <el-table-column prop="id" label="ID" min-width="20" />
           <el-table-column prop="full_name" label="ФИО" />
           <el-table-column prop="gender" :formatter="formatGender" label="Пол" />
-          <el-table-column label="Год рождения" min-width="120">
+          <el-table-column label="Дата рождения" min-width="120">
             <template #default="scope">
-              <span v-if="scope.row.birth_date">
-                {{ scope.row.birth_date }}
-              </span>
+              <span v-if="scope.row.birth_date">{{ scope.row.birth_date }}</span>
               <span v-else>-</span>
             </template>
           </el-table-column>
@@ -53,20 +51,10 @@
                     <i class="fa-solid fa-eye"></i>
                   </el-button>
                 </router-link>
-                <el-button
-                    type="primary"
-                    size="small"
-                    @click="openEditDrawer(scope.row)"
-                    class="rounded-md"
-                >
+                <el-button type="primary" size="small" @click="openEditDrawer(scope.row)" class="rounded-md">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </el-button>
-                <el-button
-                    type="danger"
-                    size="small"
-                    @click="confirmDelete(scope.row)"
-                    class="rounded-md"
-                >
+                <el-button type="danger" size="small" @click="confirmDelete(scope.row)" class="rounded-md">
                   <i class="fa-solid fa-trash-can"></i>
                 </el-button>
               </div>
@@ -96,7 +84,7 @@
     </el-drawer>
 
     <el-drawer
-        title="Редактирования пациента"
+        title="Редактирование пациента"
         v-model="updatePatientDrawer"
         direction="rtl"
         size="40%"
@@ -109,29 +97,44 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { patientStore } from "@/store/patients";
 import { ElNotification, ElMessage, ElMessageBox } from "element-plus";
-import CreateForm from "../patients/components/FormCreate.vue";
-import UpdateForm from "../patients/components/FormUpdate.vue";
+import CreateForm from "./components/FormCreate.vue";
+import UpdateForm from "./components/FormUpdate.vue";
+import FilterForm from "./components/FilterForm.vue";
 import Pagination from "@/components/Pagination.vue";
+import moment from "moment";
 
 const store = patientStore();
+const router = useRouter();
+const route = useRoute();
+
 const loading = ref(false);
 const createPatientDrawer = ref(false);
 const updatePatientDrawer = ref(false);
 const selectedData = ref(null);
 
-const currentPage = ref(1);
-const pageSize = ref(10);
+const currentPage = ref(Number(route.query.page) || 1);
+const pageSize = ref(Number(route.query.per_page) || 10);
 const totalItems = computed(() => store.getPatientPagination?.total || 0);
 const getAllPatients = computed(() => store.getPatients);
 
-const fetchFormController = async () => {
+const filters = ref({
+  last_name: route.query.last_name || "",
+  first_name: route.query.first_name || "",
+  middle_name: route.query.middle_name || "",
+  birth_date: route.query.birth_date || "",
+  phone_number: route.query.phone_number || ""
+});
+
+const fetchData = async (filterParams = {}) => {
   loading.value = true;
   try {
     await store.GET_ALL({
       page: currentPage.value,
-      per_page: pageSize.value
+      per_page: pageSize.value,
+      ...filterParams
     });
   } catch (error) {
     ElMessage.error("Ошибка загрузки списка пациентов");
@@ -141,19 +144,36 @@ const fetchFormController = async () => {
   }
 };
 
-watch([currentPage, pageSize], () => {
-  fetchFormController();
-});
-
-onMounted(fetchFormController);
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
+const updateRouteQuery = () => {
+  router.push({
+    query: {
+      ...route.query,
+      page: currentPage.value,
+      per_page: pageSize.value,
+      last_name: filters.value.last_name,
+      first_name: filters.value.first_name,
+      middle_name: filters.value.middle_name,
+      birth_date: filters.value.birth_date,
+      phone_number: filters.value.phone_number
+    }
+  });
 };
 
-const handlePageSizeChange = (newSize) => {
+onMounted(() => {
+  fetchData(filters.value);
+});
+
+const handlePageChange = async (page) => {
+  currentPage.value = page;
+  updateRouteQuery();
+  await fetchData(filters.value);
+};
+
+const handlePageSizeChange = async (newSize) => {
   pageSize.value = newSize;
   currentPage.value = 1;
+  updateRouteQuery();
+  await fetchData(filters.value);
 };
 
 const formatGender = (row) => {
@@ -177,18 +197,16 @@ const confirmDelete = async (data) => {
         {
           confirmButtonText: "Удалить",
           cancelButtonText: "Отмена",
-          type: "warning"
+          type: "warning",
         }
     );
-
     await store.DELETE_PATIENT(data.id);
-    await fetchFormController();
-
+    await fetchData(filters.value);
     ElNotification({
       title: "Успешно",
       message: "Пациент успешно удален.",
       type: "success",
-      duration: 3000
+      duration: 3000,
     });
   } catch (error) {
     if (error !== "cancel") {
@@ -196,7 +214,7 @@ const confirmDelete = async (data) => {
         title: "Ошибка",
         message: "Произошла ошибка при удалении.",
         type: "error",
-        duration: 3000
+        duration: 3000,
       });
       console.error("Ошибка при удалении:", error);
     }
@@ -204,36 +222,42 @@ const confirmDelete = async (data) => {
 };
 
 const handleEditSuccess = async () => {
-  await fetchFormController();
+  await fetchData(filters.value);
   updatePatientDrawer.value = false;
 };
 
 const handleCreateSuccess = async () => {
-  await fetchFormController();
+  await fetchData(filters.value);
   createPatientDrawer.value = false;
 };
+
+function applyFilters(newFilters) {
+  filters.value = { ...newFilters };
+  currentPage.value = 1;
+  updateRouteQuery();
+  fetchData(filters.value);
+}
+
+function resetFilters() {
+  filters.value = {
+    last_name: "",
+    first_name: "",
+    middle_name: "",
+    birth_date: "",
+    phone_number: ""
+  };
+  currentPage.value = 1;
+  updateRouteQuery();
+  fetchData();
+}
 </script>
 
 <style scoped>
-.filters {
-  margin-bottom: 20px;
-}
-.add-button-row {
-  margin: 20px 0;
-}
-.pagination {
-  text-align: right;
-}
-#el_button {
-  padding-left: 0;
-}
-
 .custom-table {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
 }
-
 ::v-deep(.el-table__header-wrapper thead th) {
   background-color: #f3f4f6;
   color: #374151;
@@ -241,23 +265,17 @@ const handleCreateSuccess = async () => {
   padding: 12px;
   border-bottom: 2px solid #e5e7eb;
 }
-
 ::v-deep(.el-table__inner-wrapper) {
   border-radius: 12px;
   overflow: hidden;
 }
-
 ::v-deep(.el-table__row) {
   transition: background 0.2s ease-in-out;
 }
-
 ::v-deep(.el-table__row:hover) {
   background-color: #f9fafb;
 }
 
-::v-deep(.el-table__row:first-child td:first-child) {
-  border-top-left-radius: 12px;
-}
 ::v-deep(.el-table__row:first-child td:last-child) {
   border-top-right-radius: 12px;
 }

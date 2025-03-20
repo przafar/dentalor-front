@@ -19,7 +19,7 @@
 
     <el-menu-item v-if="vCan.can('dashboard_index', 'all')" index="dashboard" :route="{ name: 'dashboard' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <Icon icon="ic:round-home" class="text-3xl" :ssr="true" />
+        <Icon icon="ic:round-home" class="text-[30px]" :ssr="true" />
       </el-icon>
 
       <template #title>Главная</template>
@@ -27,7 +27,7 @@
 
     <el-menu-item v-if="vCan.can('organization_index', 'all')" index="organizations" :route="{ name: 'organizations' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <Icon icon="healthicons:hospital-24px" class="text-3xl" :ssr="true" />
+        <Icon icon="healthicons:hospital-24px" class="text-[30px]" :ssr="true" />
       </el-icon>
 
       <template #title>Организация</template>
@@ -35,7 +35,7 @@
 
     <el-menu-item v-if="vCan.can('practitioner_index', 'all')" index="practitioners" :route="{ name: 'practitioners' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <Icon icon="ic:round-supervisor-account" class="text-3xl" :ssr="true" />
+        <Icon icon="ic:round-supervisor-account" class="text-[30px]" :ssr="true" />
       </el-icon>
 
       <template #title>Сотрудники</template>
@@ -43,7 +43,7 @@
     
     <el-menu-item v-if="vCan.can('service_index', 'all')" index="service" :route="{ name: 'service' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <Icon icon="ic:round-account-tree" class="text-3xl" :ssr="true" />
+        <Icon icon="ic:round-account-tree" class="text-[30px]" :ssr="true" />
 
       </el-icon>
       
@@ -52,14 +52,14 @@
 
     <el-menu-item v-if="vCan.can('patient_index', 'all')" index="patients" :route="{ name: 'patients' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <Icon icon="ic:baseline-person-add-alt-1" class="text-3xl" :ssr="true" />
+        <Icon icon="ic:baseline-person-add-alt-1" class="text-[30px]" :ssr="true" />
       </el-icon>
       <template #title>Пациенты</template>
     </el-menu-item>
 
     <el-menu-item v-if="vCan.can('appointment_index', 'all')" index="appointments" :route="{ name: 'appointments' }" class="text-[#495265]">
       <el-icon class="text-lg">
-        <Icon icon="healthicons:i-exam-multiple-choice" class="text-3xl" :ssr="true" />
+        <Icon icon="healthicons:i-exam-multiple-choice" class="text-[30px]" :ssr="true" />
       </el-icon>
       <template #title>Запись на приём</template>
     </el-menu-item>
