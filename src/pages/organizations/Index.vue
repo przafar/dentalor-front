@@ -1,14 +1,5 @@
 <template>
   <div>
-    <div class="pt-2 border-b border-[#eceeef]">
-      <div class="relative rounded-lg pb-2 pl-4">
-        <el-page-header @back="$router.push('/')" class="flex items-center">
-          <template #content>
-            <h1 class="text-md font-semibold text-gray-800">Организации</h1>
-          </template>
-        </el-page-header>
-      </div>
-    </div>
     <div class="flex flex-col p-4">
       <div>
         <div class="mb-4 flex justify-between items-center">

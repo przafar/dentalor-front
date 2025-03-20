@@ -1,15 +1,5 @@
 <template>
   <div>
-    <div class="pt-2 border-b border-[#eceeef]">
-      <div class="relative rounded-lg pb-2 pl-4">
-        <el-page-header @back="$router.push('/')" class="flex items-center">
-          <template #content>
-            <h1 class="text-md font-semibold text-gray-800">Пациенты</h1>
-          </template>
-        </el-page-header>
-      </div>
-    </div>
-
     <FilterForm @apply="applyFilters" @reset="resetFilters" />
 
     <div class="flex flex-col p-4">
@@ -28,9 +18,9 @@
         </div>
       </div>
       <div>
-        <el-table :data="getAllPatients" class="custom-table">
-          <el-table-column prop="id" label="ID" min-width="20" />
-          <el-table-column prop="full_name" label="ФИО" />
+        <el-table :data="getAllPatients" class="custom-table" stripe>
+          <el-table-column prop="id" label="ID" min-width="30" />
+          <el-table-column prop="full_name" label="ФИО" min-width="180" />
           <el-table-column prop="gender" :formatter="formatGender" label="Пол" />
           <el-table-column label="Дата рождения" min-width="120">
             <template #default="scope">
@@ -259,7 +249,7 @@ function resetFilters() {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
 }
 ::v-deep(.el-table__header-wrapper thead th) {
-  background-color: #f3f4f6;
+  background-color: #f6f8fa;
   color: #374151;
   font-weight: 600;
   padding: 12px;
@@ -272,9 +262,7 @@ function resetFilters() {
 ::v-deep(.el-table__row) {
   transition: background 0.2s ease-in-out;
 }
-::v-deep(.el-table__row:hover) {
-  background-color: #f9fafb;
-}
+
 
 ::v-deep(.el-table__row:first-child td:last-child) {
   border-top-right-radius: 12px;

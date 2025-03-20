@@ -1,15 +1,5 @@
 <template>
   <div>
-    <div class="pt-2 border-b border-[#eceeef]">
-      <div class="relative rounded-lg pb-2 pl-4">
-        <el-page-header @back="$router.push('/')" class="flex items-center">
-          <template #content>
-            <h1 class="text-md font-semibold text-gray-800">Запись на приём</h1>
-          </template>
-        </el-page-header>
-      </div>
-    </div>
-
     <div class="p-4">
       <el-radio-group v-model="viewMode" size="medium">
         <el-radio-button label="calendar">Календарь</el-radio-button>
