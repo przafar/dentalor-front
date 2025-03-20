@@ -106,8 +106,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="Роль" prop="service">
-          <el-select v-model="roleForm.service" placeholder="Выберите роль" multiple>
+        <el-form-item label="Сервис" prop="service">
+          <el-select v-model="roleForm.service" placeholder="Выберите сервис" multiple>
             <el-option
                 v-for="item in service.getEncounterClasses"
                 :key="item.code"
