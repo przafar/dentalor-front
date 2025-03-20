@@ -2,7 +2,7 @@
   <el-menu
     :default-active="$router.currentRoute.value.meta.name"
     default-active="2"
-    class="el-menu-vertical-demo bg-[#f9fbfc]"
+    class="el-menu-vertical-demo bg-[#f6f8fa]"
     :collapse="store.isCollapse"
     @open="handleOpen"
     @close="handleClose"
@@ -11,8 +11,8 @@
   
     <div class="menu-header pt-4 pl-4 h-14 mb-4 flex justify-between items-center">
        <div class="flex items-center">
-          <img class="w-6" src="../../assets/image/dentalor-min.png" alt="">
-          <span v-if="!store.isCollapse" class="menu-title text-xl ml-2 text-[#385df0] font-bold">Denta Lor</span>
+          <img class="w-10" src="../../assets/image/dentalor-min.png" alt="">
+          <span v-if="!store.isCollapse" class="menu-title ml-2">DENTA LOR</span>
        </div>
 
     </div>
@@ -98,7 +98,7 @@ const navigateTo = (index) => {
 
 <style>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 250px;
+  width: 260px;
   min-height: 400px;
 }
 </style>

@@ -7,7 +7,9 @@
     >
       <Header/>
 
-      <router-view />
+      <div>
+        <router-view />
+      </div>
     </div>
   </div>
 </template>

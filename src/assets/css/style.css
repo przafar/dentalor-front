@@ -11,10 +11,10 @@
 :root {
 
     --color-black: #233447;
-    --color-primary: #385df0;
+    --color-primary: #396bd1;
     --color-blue: #3db3ff;
-    --color-green: #00bd83;
-    --color-red: #f94a8b;
+    --color-green: #18ac41;
+    --color-red: #ac1b1b;
     --color-yellow: #ffba00;
     --color-gray: #7e88a2;
 
@@ -24,18 +24,19 @@
 
 
     /* Цвета для состояний */
-    --el-color-success: #00bd83;
+    --el-color-success: #18ac41;
     --el-color-warning: #ffba00;
-    --el-color-danger: #f94a8b;
+    --el-color-danger: #ac1b1b;
     --el-color-info: #7e88a2;
     --tw-gradient-stops: #ffba00;
     --el-menu-base-level-padding: 8px;
+    --el-menu-base-level-padding: 14px;
     --el-menu-item-height: 42px;
     --el-menu-item-font-size: 12px;
-    --main-color: #385df0;
-    --el-menu-active-color: #385df0;
-    --el-menu-hover-bg-color: #385df037;
-    --hover-color: #385df037;
+    --main-color: #396bd1;
+    --el-menu-active-color: #396bd1;
+    --el-menu-hover-bg-color: #b5c7ee;
+    --hover-color: #b5c7ee;
     --el-menu-icon-width: 38px;
     --el-border-radius-base: 8px;
 
@@ -73,10 +74,10 @@ body {
     margin-top: -10px;
 }
 .el-menu-item .el-menu-tooltip__trigger {
-    padding: 0;
+    padding: 0 5px;
 }
 .el-menu-item {
-    padding: 5px 0 !important;
+    padding: 5px 5px !important;
 }
 .page_title {
     font-size: 22px;
@@ -90,4 +91,10 @@ body {
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
     border-radius: 12px;
     overflow: hidden;
+}
+.menu-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--color-primary);
+    font-weight: 600;
 }
