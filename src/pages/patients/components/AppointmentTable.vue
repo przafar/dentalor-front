@@ -174,9 +174,6 @@ const deleteAppointment = (id) => {
   background-color: #f9fafb;
 }
 
-::v-deep(.el-table__row:first-child td:first-child) {
-  border-top-left-radius: 12px;
-}
 
 ::v-deep(.el-table__row:first-child td:last-child) {
   border-top-right-radius: 12px;
