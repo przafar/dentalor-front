@@ -192,7 +192,7 @@ const rules = {
     {required: true, message: "Фамилия обязательна", trigger: "blur"}
   ],
   phoneInput: [
-    {required: true, message: "Номер телефона обязателен", trigger: "blur"}
+    {required: false, message: "Номер телефона обязателен", trigger: "blur"}
   ],
   birthDate: [
     {required: true, message: "Дата рождения обязательна", trigger: "change"}
