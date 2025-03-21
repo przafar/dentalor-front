@@ -10,19 +10,31 @@
       <el-row :gutter="20">
         <el-col>
           <el-form-item label="Фамилия" prop="lastName">
-            <el-input v-model="form.lastName" placeholder="Введите фамилию" />
+            <el-autocomplete
+                v-model="form.lastName"
+                :fetch-suggestions="querySearchLastName"
+                placeholder="Введите фамилию"
+            ></el-autocomplete>
           </el-form-item>
         </el-col>
 
         <el-col>
           <el-form-item label="Имя" prop="firstName">
-            <el-input v-model="form.firstName" placeholder="Введите имя" />
+            <el-autocomplete
+                v-model="form.firstName"
+                :fetch-suggestions="querySearchFirstName"
+                placeholder="Введите имя"
+            ></el-autocomplete>
           </el-form-item>
         </el-col>
 
         <el-col>
           <el-form-item label="Отчество" prop="middleName">
-            <el-input v-model="form.middleName" placeholder="Введите отчество" />
+            <el-autocomplete
+                v-model="form.middleName"
+                :fetch-suggestions="querySearchMiddleName"
+                placeholder="Введите отчество"
+            ></el-autocomplete>
           </el-form-item>
         </el-col>
       </el-row>
@@ -67,6 +79,7 @@
         </el-col>
       </el-row>
 
+      <!-- Остальные элементы формы -->
       <el-row :gutter="20">
         <el-col>
           <el-form-item label="Номер телефона" prop="phoneInput">
@@ -102,14 +115,16 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { patientStore } from "@/store/patients";
-import { vMaska } from 'maska';
+import { autoCompleteStore } from "@/store/autoComplete";
+import { vMaska } from "maska";
 import moment from "moment";
 
 const emit = defineEmits(["success"]);
 const store = patientStore();
+const autoComplete = autoCompleteStore();
 
 const form = reactive({
   firstName: "",
@@ -130,7 +145,6 @@ const state = reactive({
   datePickerVisible: false
 });
 
-// Синхронизация выбранной даты с моделью формы
 watch(
     () => state.birth_date,
     (newVal) => {
@@ -138,7 +152,6 @@ watch(
     }
 );
 
-// Функции для работы с датой рождения
 const openDatePicker = () => {
   state.datePickerVisible = true;
 };
@@ -165,7 +178,6 @@ const formatBirthDate = () => {
   }
 };
 
-
 const phoneInput = ref("+998");
 
 const getRawPhone = (formatted) => {
@@ -180,7 +192,7 @@ const rules = {
     {required: true, message: "Фамилия обязательна", trigger: "blur"}
   ],
   phoneInput: [
-    {required: false, message: "Номер телефона обязателен", trigger: "blur"},
+    {required: true, message: "Номер телефона обязателен", trigger: "blur"}
   ],
   birthDate: [
     {required: true, message: "Дата рождения обязательна", trigger: "change"}
@@ -190,11 +202,50 @@ const rules = {
   ]
 };
 
+
+const querySearchLastName = async (queryString, cb) => {
+  if (queryString.trim().length < 3) {
+    return cb([]);
+  }
+  try {
+    const response = await autoComplete.GET_LAST_NAMES({ query: queryString });
+    const suggestions = response.data.map(item => ({ value: item.last_name }));
+    cb(suggestions);
+  } catch (error) {
+    cb([]);
+  }
+};
+
+const querySearchFirstName = async (queryString, cb) => {
+  if (queryString.trim().length < 3) {
+    return cb([]);
+  }
+  try {
+    const response = await autoComplete.GET_FIRST_NAMES({ query: queryString });
+    const suggestions = response.data.map(item => ({ value: item.first_name }));
+    cb(suggestions);
+  } catch (error) {
+    cb([]);
+  }
+};
+
+const querySearchMiddleName = async (queryString, cb) => {
+  if (queryString.trim().length < 3) {
+    return cb([]);
+  }
+  try {
+    const response = await autoComplete.GET_MIDDLE_NAMES({ query: queryString });
+    const suggestions = response.data.map(item => ({ value: item.middle_name }));
+    cb(suggestions);
+  } catch (error) {
+    cb([]);
+  }
+};
+
 const handleSubmit = async () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       form.phoneNumber = getRawPhone(phoneInput.value);
-
       const payload = {
         firstName: form.firstName.toUpperCase(),
         lastName: form.lastName.toUpperCase(),
@@ -230,4 +281,5 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+/* Ваши стили */
 </style>
