@@ -269,9 +269,21 @@ const handleSubmit = async () => {
           }
         ]
       };
-      await store.CREATE_PATIENT(payload);
-      emit("success");
-      ElMessage.success("Пациент успешно создан.");
+
+      try {
+        const res = await store.CREATE_PATIENT(payload);
+        if (res && res.status && res.status !== 201) {
+          throw res;
+        }
+        emit("success");
+        ElMessage.success("Пациент успешно создан.");
+      } catch (error) {
+
+        const errMsg =
+            (error.response && error.response.data && error.response.data.error) ||
+            "Ошибка создания пациента.";
+        ElMessage.error(errMsg);
+      }
     } else {
       ElMessage.error("Пожалуйста, исправьте ошибки валидации.");
       return false;
