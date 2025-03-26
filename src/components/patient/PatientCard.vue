@@ -81,7 +81,7 @@
                 <el-skeleton-item class="mt-2" variant="text" style="width: 50%"></el-skeleton-item>
               </template>
               <template #default>
-                <span>+{{ patient.phone_number && patient.phone_number ? patient.phone_number : '-' }}</span>
+                <span>{{ formatPhoneNumber(patient.phone_number) }}</span>
               </template>
             </el-skeleton>
           </div>
@@ -158,7 +158,7 @@
           <div class="patient_address_item">
             <div>
               <Icon icon="material-symbols:calendar-clock-rounded" class="text-[18px] mr-2 text-[#385df0]" :ssr="true" />
-              <h5>Создано</h5>
+              <h5>Пациент создано</h5>
             </div>
             <el-skeleton :rows="3" :loading="!patient" animated>
               <template #template>
@@ -232,4 +232,19 @@ const copyToClipboard = (value) => {
         });
   }
 };
+function formatPhoneNumber(number) {
+  if (!number) return '-'
+  // Удаляем все нецифровые символы
+  const digits = number.replace(/\D/g, '')
+  // Проверяем, что номер начинается с 998 и имеет нужную длину (12 цифр)
+  if (digits.length === 12 && digits.startsWith('998')) {
+    const country = digits.slice(0, 3)
+    const operator = digits.slice(3, 5)
+    const part1 = digits.slice(5, 8)
+    const part2 = digits.slice(8, 10)
+    const part3 = digits.slice(10, 12)
+    return `+${country} (${operator})${part1}-${part2}-${part3}`
+  }
+  return number
+}
 </script>

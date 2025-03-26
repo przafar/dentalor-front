@@ -7,15 +7,9 @@
         class="space-y-4"
         @submit.prevent="handleSubmit"
     >
-      <el-form-item label="ID приёма" prop="appointment_id">
-        <el-input
-            v-model="formData.appointment_id"
-            disabled
-            class="bg-gray-100 cursor-not-allowed"
-        />
-      </el-form-item>
 
-      <el-form-item label="Encounter Class (код)" prop="encounter_class">
+
+      <el-form-item label="Направления" prop="encounter_class">
         <el-select
             v-model="selectedEncounterClass"
             placeholder="Выберите encounter class"
@@ -29,12 +23,12 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Encounter Types" prop="encounter_types">
+      <el-form-item label="Тип услуги" prop="encounter_types">
         <el-select
             v-model="formData.encounter_types"
             multiple
             filterable
-            placeholder="Выберите encounter types"
+            placeholder="Выберите тип услуги"
             class="w-full"
         >
           <el-option
@@ -48,16 +42,9 @@
 
 
 
-      <el-form-item label="Примечание (note)" prop="note">
-        <el-input
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 5 }"
-            placeholder="Любая дополнительная информация"
-            v-model="formData.note"
-        />
-      </el-form-item>
 
-      <el-form-item label="Жалобы и анамнез (complaints)" prop="complaints">
+
+      <el-form-item label="Жалобы и анамнез" prop="complaints">
         <el-input
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 5 }"
@@ -66,7 +53,7 @@
         />
       </el-form-item>
 
-      <el-form-item label="Клинический осмотр (clinical_exam)" prop="clinical_exam">
+      <el-form-item label="Клинический осмотр" prop="clinical_exam">
         <el-input
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 5 }"
@@ -75,12 +62,20 @@
         />
       </el-form-item>
 
-      <el-form-item label="Назначенное лечение (assigned_treatment)" prop="assigned_treatment">
+      <el-form-item label="Назначенное лечение" prop="assigned_treatment">
         <el-input
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 5 }"
             placeholder="Текст назначения"
             v-model="formData.assigned_treatment"
+        />
+      </el-form-item>
+      <el-form-item label="Примечание " prop="note">
+        <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 5 }"
+            placeholder="Любая дополнительная информация"
+            v-model="formData.note"
         />
       </el-form-item>
 

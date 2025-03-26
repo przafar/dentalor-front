@@ -1,7 +1,7 @@
 <template>
   <div class="content_with_patient flex-1">
     <PatientCard :info="getAppointmentData?.patient" />
-    <div>
+    <div class="w-full">
       <div class="pt-2 border-b border-[#eceeef]">
         <div class="relative rounded-lg pb-2 pl-4">
           <el-page-header @back="goBack" class="flex items-center">
@@ -32,7 +32,7 @@
 
 
 
-        <el-tabs v-model="activeTab" class="mt-4">
+        <el-tabs v-model="activeTab" class="mt-4 w-full">
           <el-tab-pane label="Информация о приёме" name="info" class="w-full">
             <div class="w-full">
               <el-card class="rounded-xl w-full my-6">
@@ -108,13 +108,14 @@
                       <strong>Создан:</strong>
                       <span>{{ formatDate(getAppointmentData?.created_at) }}</span>
                     </div>
-                  </el-col>
-
-                  <el-col :xs="24" :sm="12" :md="12">
                     <div>
                       <strong>Обновлен:</strong>
                       <span>{{ formatDate(getAppointmentData?.updated_at) }}</span>
                     </div>
+                  </el-col>
+
+                  <el-col :xs="24" :sm="12" :md="12">
+
                   </el-col>
                 </el-row>
               </el-card>
@@ -274,7 +275,7 @@ const appointmentId = route.params.id;
 const loading = ref(false);
 const createObservationVisible = ref(false);
 const updateObservationVisible = ref(false);
-const activeTab = ref("info"); // активная вкладка
+const activeTab = ref("info");
 const selectedData = ref(null);
 
 const getAppointmentData = computed(() => appointment.getAppointmentData);
@@ -290,7 +291,6 @@ const isWaitlistOrArrived = computed(() => {
   return status === "waitlist" || status === "booked";
 });
 
-// Методы
 const fetchData = async () => {
   loading.value = true;
   try {

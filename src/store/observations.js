@@ -51,6 +51,16 @@ export const observationStore = defineStore('observation', {
                     return error
                 })
         },
+        async UPDATE_OBSERVATION(id, body) {
+            return await axios
+                .put(`observations/${id}`, body)
+                .then((e) => {
+                    return e
+                })
+                .catch((error) => {
+                    return error
+                })
+        }
 
 
     },
