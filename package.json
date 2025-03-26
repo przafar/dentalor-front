@@ -34,8 +34,8 @@
     "pinia": "^2.3.0",
     "vue": "^3.2.20",
     "vue-flatpickr-component": "^11.0.3",
-    "vue-router": "^4.2.5",
-    "vue-imask": "^6.4.3"
+    "vue-imask": "^6.4.3",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@iconify/vue": "^4.3.0",

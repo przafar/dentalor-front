@@ -28,7 +28,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api/': {
-        target: 'https://med.mf.uz/api/web/',
+        target: 'https://dentalor.uz/api',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),

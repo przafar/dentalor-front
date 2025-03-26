@@ -5,8 +5,7 @@
     <div
       class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden"
     >
-      <Header/>
-
+      <Header class="sticky top-0 z-50"/>
       <div>
         <router-view />
       </div>

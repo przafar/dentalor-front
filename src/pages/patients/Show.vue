@@ -1,91 +1,64 @@
 <template>
-  <div>
-    <!-- Заголовок страницы -->
-    <div class="pt-2 border-b border-[#eceeef]">
-      <div class="relative rounded-lg pb-2 pl-4">
-        <el-page-header @back="$router.push('/patient')" class="flex items-center">
-          <template #content>
-            <h1 class="text-md font-semibold text-gray-800">Детали пациента</h1>
-          </template>
-        </el-page-header>
-      </div>
-    </div>
+  <div class="content_with_patient flex-1">
+    <PatientCard :info="patientData" />
 
-    <div class="p-4 relative w-full">
-      <!-- Карточка пациента -->
-      <el-card class="rounded-lg mb-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <el-avatar
-                :size="64"
-                src="https://via.placeholder.com/150"
-                class="border border-gray-300"
-            />
-            <div>
-              <h1 class="text-2xl font-semibold text-gray-900">
-                {{ patientData?.last_name }} {{ patientData?.first_name }} {{ patientData?.middle_name }}
-              </h1>
-              <el-tag type="info" class="mt-1">{{ patientGender }}</el-tag>
-            </div>
-          </div>
-          <el-button @click="openModal" type="primary" class="rounded-md">Создать прием</el-button>
-        </div>
-      </el-card>
-
-      <el-tabs v-model="activeTab">
-        <!-- Информация о пациенте -->
-        <el-tab-pane label="Информация о пациенте" name="info">
-          <el-card class="mt-6 rounded-lg card-shadow">
-            <template #header>
-              <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold">Данные пациента</h2>
-              </div>
+    <div class="w-full">
+      <div class="pt-2 border-b border-[#eceeef]">
+        <div class="relative rounded-lg pb-2 pl-4">
+          <el-page-header @back="$router.push('/patients')" class="flex items-center">
+            <template #content>
+              <h1 class="text-md font-semibold text-gray-800">Детали пациента</h1>
             </template>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-gray-700">
-              <div><span class="font-medium">Возраст:</span> {{ patientAge }} лет</div>
-              <div><span class="font-medium">Пол:</span> {{ patientGender }}</div>
-              <div><span class="font-medium">Телефон:</span> {{ patientData?.phone_number }}</div>
-              <div><span class="font-medium">Email:</span> {{ patientData?.email || 'Не указано' }}</div>
-              <div><span class="font-medium">Адрес:</span> {{ patientData?.address || 'Не указано' }}</div>
-              <div v-for="id in patientData?.identifier || []" :key="id.value">
-                <span class="font-medium">{{ id.display }}:</span> {{ id.value }}
+          </el-page-header>
+        </div>
+      </div>
+
+      <div class="px-4 pt-4 relative w-full flex justify-start">
+        <el-button @click="openModal" type="primary" class="rounded-md">Создать прием</el-button>
+      </div>
+
+      <div class="p-4 relative w-full">
+
+
+        <el-tabs v-model="activeTab">
+          <el-tab-pane label="Общая информация" name="info">
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <Schedule :info="getAppointmentData" />
               </div>
             </div>
-          </el-card>
-        </el-tab-pane>
+          </el-tab-pane>
 
-        <el-tab-pane label="История приемов" name="history">
-          <AppointmentTable :patientId="route.params.id" />
-        </el-tab-pane>
+          <el-tab-pane label="История приемов" name="history">
+            <AppointmentTable :patientId="route.params.id" />
+          </el-tab-pane>
 
-        <!-- Следующее лечение -->
-        <el-tab-pane label="Следующее лечение" name="treatment">
-          <el-card class="mt-6 rounded-lg card-shadow">
-            <h2 class="text-xl font-semibold">Следующее лечение</h2>
-            <p class="text-gray-700 mt-2">Нет запланированных процедур.</p>
-          </el-card>
-        </el-tab-pane>
+          <el-tab-pane label="Исследования" name="treatment">
+            <el-card class="mt-6 rounded-lg card-shadow">
+              <h2 class="text-xl font-semibold">Следующее лечение</h2>
+              <p class="text-gray-700 mt-2">Нет запланированных процедур.</p>
+            </el-card>
+          </el-tab-pane>
 
-        <!-- Медицинская карта -->
-        <el-tab-pane label="Медицинская карта" name="record">
-          <el-card class="mt-6 rounded-lg card-shadow">
-            <h2 class="text-xl font-semibold">Медицинская карта</h2>
-            <p class="text-gray-700 mt-2">Нет данных.</p>
-          </el-card>
-        </el-tab-pane>
-      </el-tabs>
+          <el-tab-pane label="Документы" name="record">
+            <el-card class="mt-6 rounded-lg card-shadow">
+              <h2 class="text-xl font-semibold">Медицинская карта</h2>
+              <p class="text-gray-700 mt-2">Нет данных.</p>
+            </el-card>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+
+      <el-dialog
+          v-model="isModalVisible"
+          title="Создать прием"
+          width="50%"
+          :before-close="closeModal"
+          destroy-on-close
+      >
+        <CreateAppointmentForm @submit="closeAppointmentForm" />
+      </el-dialog>
     </div>
-
-    <!-- Диалог создания приема -->
-    <el-dialog
-        v-model="isModalVisible"
-        title="Создать прием"
-        width="50%"
-        :before-close="closeModal"
-        destroy-on-close
-    >
-      <CreateAppointmentForm @submit="closeAppointmentForm" />
-    </el-dialog>
   </div>
 </template>
 
@@ -99,6 +72,12 @@ import CreateAppointmentForm from "./components/CreateAppointment.vue";
 import { ElMessage } from "element-plus";
 import moment from "moment";
 import AppointmentTable from "./components/AppointmentTable.vue";
+import PatientCard from "@/components/patient/PatientCard.vue";
+import Schedule from "./components/Schedule.vue"
+
+import femaleIcon from '@/assets/image/female.png'
+import maleIcon from '@/assets/image/men.png'
+
 
 const store = patientStore();
 const serviceStore = servicesStore();
@@ -110,16 +89,23 @@ const activeTab = ref("info");
 const patientData = ref(null);
 const loading = ref(false);
 
-// Получаем данные о приёмах (убедитесь, что appointment.getAppointment – реактивное свойство)
 
 onMounted(async () => {
   await fetchPatientData();
 });
 
+
+const getAppointmentData = computed(() => appointment.getAppointment);
+
 const fetchPatientData = async () => {
   loading.value = true;
   try {
     const res = await store.GET_BY_ID(patientId);
+    await appointment.GET_ALL({
+      patient_id: patientId,
+      page: 1,
+      per_page: 20,
+    });
     patientData.value = res?.data || {};
   } catch (error) {
     ElMessage.error("Ошибка загрузки данных пациента");

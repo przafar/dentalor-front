@@ -62,7 +62,7 @@
 
     <div v-if="form.withDate && form.practitioner_role && form.date">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
+        <!-- Дополнительные поля или информация по необходимости -->
       </div>
 
       <!-- Сетка доступных слотов с возможностью множественного выбора -->
@@ -97,6 +97,7 @@ import { appointmentStore } from '@/store/appointments';
 import { practitionerRoleStore } from '@/store/practitionerRoles';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import moment from 'moment';
 
 const serviceStore = servicesStore();
 const appointment = appointmentStore();
@@ -114,7 +115,7 @@ const patientId = route.params.id;
 
 const form = ref({
   time: null,
-  date: null,
+  date: moment().format('YYYY-MM-DD'), // Устанавливаем дату приема по умолчанию на сегодня
   practitioner_role: null,
   encounter_class: '',
   reason_text: '',
@@ -168,7 +169,6 @@ const fetchValueSets = async () => {
   await practitionerRole.GET_ALL();
 };
 
-
 const handleCheckboxChange = async () => {
   if(form.value.practitioner_role && form.value.date && form.value.withDate) {
     const params = {
@@ -182,7 +182,7 @@ const handleCheckboxChange = async () => {
       console.error("Ошибка получения слотов", error);
     }
   }
-}
+};
 
 const isSelected = (slot) => {
   return form.value.slots.includes(slot.id);
@@ -205,7 +205,7 @@ const handleSlotClick = (slot) => {
     }
   } else {
     form.value.time = null;
-    form.value.date = null;
+    form.value.date = moment().format('YYYY-MM-DD');
   }
 };
 
@@ -226,7 +226,7 @@ const submitForm = () => {
       encounter_class: form.value.encounter_class,
       reason_text: form.value.reason_text,
       patient_id: patientId,
-      status: form.value.withDate ? 'booked' : 'draft',
+      status: form.value.withDate ? 'booked' : 'waitlist',
       slots: form.value.slots
     };
     try {

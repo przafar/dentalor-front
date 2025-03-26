@@ -72,6 +72,16 @@ export const appointmentStore = defineStore('appointment', {
                 .catch((error) => {
                     return error
                 })
+        },
+        async UPDATE_APPOINTMENT_STATUS(id, status) {
+            return await axios
+                .put(`appointments/${id}`, { status })
+                .then((e) => {
+                    return e
+                })
+                .catch((error) => {
+                    return error
+                })
         }
 
     },

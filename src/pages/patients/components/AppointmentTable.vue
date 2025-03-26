@@ -1,7 +1,25 @@
 <template>
   <div class="mt-4">
-    <el-table :data="getAppointmentData.data" style="width: 100%" stripe>
+    <el-table
+        :data="getAppointmentData.data"
+        style="width: 100%"
+        stripe
+        v-loading="loading"
+    >
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
+      <el-table-column label="Время приема" width="150">
+        <template #default="scope">
+          <span v-if="scope.row.time">{{ scope.row.time }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Дата приема" width="120">
+        <template #default="scope">
+          <span v-if="scope.row.date">{{ formatDate(scope.row.date) }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="Услуга">
         <template #default="scope">
           <span v-if="scope.row.encounter_class && scope.row.encounter_class.display">
@@ -12,6 +30,7 @@
           </span>
         </template>
       </el-table-column>
+
       <el-table-column label="Специалист">
         <template #default="scope">
           <span v-if="scope.row.practitioner && scope.row.practitioner.last_name">
@@ -20,33 +39,24 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="reason_text" label="Причина приема"></el-table-column>
-      <el-table-column prop="status" label="Статус" width="100"></el-table-column>
-      <el-table-column label="Дата приема" width="120">
+
+
+
+      <el-table-column label="Статус" width="140">
         <template #default="scope">
-          <span v-if="scope.row.date">{{ formatDate(scope.row.date) }}</span>
-          <span v-else>-</span>
+          <el-tag :type="getStatusTag(scope.row.status).type">
+            {{ getStatusTag(scope.row.status).text }}
+          </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Время приема" width="150">
-        <template #default="scope">
-          <span v-if="scope.row.time">{{ scope.row.time }}</span>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
-<!--      <el-table-column label="Слоты" width="200">-->
-<!--        <template #default="scope">-->
-<!--          <span v-if="scope.row.slotsDetails && scope.row.slotsDetails.length > 0">-->
-<!--            <span v-for="slot in scope.row.slotsDetails" :key="slot.id">-->
-<!--              {{ slot.start }}–{{ slot.end }};&nbsp;-->
-<!--            </span>-->
-<!--          </span>-->
-<!--          <span v-else>-</span>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+
+
+
       <el-table-column label="Действия" width="140">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="editAppointment(scope.row)"><i class="fa-solid fa-eye mr-2"></i> Просмотр</el-button>
+          <el-button type="primary" size="small" @click="editAppointment(scope.row)">
+            <i class="fa-solid fa-eye mr-2"></i> Просмотр
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -64,12 +74,11 @@
 
 <script setup>
 import { onMounted, ref, computed } from "vue";
-import { useRoute } from "vue-router";
-import { patientStore } from "@/store/patients";
+import { useRoute, useRouter } from "vue-router";
 import { appointmentStore } from "@/store/appointments";
 import { ElMessage } from "element-plus";
 import moment from "moment";
-import Pagination from '@/components/Pagination.vue';
+import Pagination from "@/components/Pagination.vue";
 
 const props = defineProps({
   patientId: {
@@ -78,59 +87,55 @@ const props = defineProps({
   }
 });
 
-const store = patientStore();
-const appointment = appointmentStore();
 const route = useRoute();
+const router = useRouter();
+const appointment = appointmentStore();
 
 const patientId = route.params.id || props.patientId;
 
-const patientData = ref(null);
 const loading = ref(false);
-
 const currentPage = ref(1);
 const pageSize = ref(10);
+
 const totalItems = computed(() => getAppointmentData.value?.pagination?.total || 0);
-
 const getAppointmentData = computed(() => appointment.getAppointment);
-
-onMounted(async () => {
-  await fetchData();
-});
 
 const fetchData = async () => {
   loading.value = true;
   try {
-    const res = await store.GET_BY_ID(patientId);
-    patientData.value = res?.data || {};
-
     await appointment.GET_ALL({
       patient_id: patientId,
       page: currentPage.value,
-      per_page: pageSize.value
+      per_page: pageSize.value,
     });
   } catch (error) {
-    ElMessage.error("Ошибка загрузки данных пациента");
+    ElMessage.error("Ошибка загрузки данных приемов");
     console.error(error);
   } finally {
     loading.value = false;
   }
 };
 
+onMounted(async () => {
+  await fetchData();
+});
+
 const handlePageChange = async (page) => {
   currentPage.value = page;
   await appointment.GET_ALL({
     patient_id: patientId,
     page: page,
-    per_page: pageSize.value
+    per_page: pageSize.value,
   });
 };
+
 const handlePageSizeChange = async (newSize) => {
   pageSize.value = newSize;
   currentPage.value = 1;
   await appointment.GET_ALL({
     patient_id: patientId,
     page: currentPage.value,
-    per_page: pageSize.value
+    per_page: pageSize.value,
   });
 };
 
@@ -139,11 +144,30 @@ const formatDate = (dateString) => {
 };
 
 const editAppointment = (appointment) => {
-  console.log("Редактировать", appointment);
+  router.push({ name: 'appointments-show', params: { id: appointment.id } });
 };
 
 const deleteAppointment = (id) => {
   console.log("Удалить appointment с id", id);
+};
+
+const getStatusTag = (status) => {
+  switch (status) {
+    case 'waitlist':
+      return { text: 'в ожидании', type: 'warning' };
+    case 'booked':
+      return { text: 'забронировано', type: 'info' };
+    case 'arrived':
+      return { text: 'прибыл', type: 'success' };
+    case 'in-progress':
+      return { text: 'в процессе', type: 'primary' };
+    case 'fulfilled':
+      return { text: 'выполнено', type: 'success' };
+    case 'cancelled':
+      return { text: 'Отменено', type: 'danger' };
+    default:
+      return { text: status, type: 'info' };
+  }
 };
 </script>
 
@@ -173,7 +197,6 @@ const deleteAppointment = (id) => {
 ::v-deep(.el-table__row:hover) {
   background-color: #f9fafb;
 }
-
 
 ::v-deep(.el-table__row:first-child td:last-child) {
   border-top-right-radius: 12px;
