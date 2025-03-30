@@ -19,7 +19,6 @@
       <el-checkbox v-model="form.isComplex">Содержит поданализы</el-checkbox>
     </el-form-item>
 
-    <!-- Блок поданализов показывается, если анализ комплексный -->
     <template v-if="form.isComplex">
       <el-form-item label="Поданализы" prop="sub_analyses">
         <div v-for="(item, index) in form.sub_analyses" :key="index" class="mb-2 flex items-center">
@@ -74,7 +73,6 @@ import { ElMessage } from 'element-plus'
 const store = servicesStore()
 const formRef = ref(null)
 
-// Основная модель формы. Поле isComplex определяет, используется ли массив поданализов.
 const form = reactive({
   code: '',
   display: '',
@@ -85,11 +83,9 @@ const form = reactive({
   sub_analyses: []
 })
 
-// Правила валидации (если комплексный – проверяем, что sub_analyses не пуст и каждый элемент имеет заполненное имя)
 const rules = {
   code: [ {required: true, message: "Поле 'Код' обязательно", trigger: "blur"} ],
   display: [ {required: true, message: "Поле 'Название' обязательно", trigger: "blur"} ],
-  // Норма и единица измерения можно оставить необязательными, если для некоторых анализов они не требуются
   norm: [ {required: false, message: "Введите норму", trigger: "blur"} ],
   unit: [ {required: false, message: "Введите ед. изм.", trigger: "blur"} ],
   price: [ {required: true, type: "number", message: "Введите цену", trigger: "blur"} ],
@@ -115,19 +111,16 @@ const rules = {
 
 const isLoading = ref(false)
 
-// Функция для добавления нового поданализа
 const addSubAnalysis = () => {
   form.sub_analyses.push({name: '', norm: '', unit: '', result: null});
 }
 
-// Функция для удаления поданализа по индексу
 const removeSubAnalysis = (index) => {
   form.sub_analyses.splice(index, 1);
 }
 
 const emit = defineEmits([ 'create', 'cancel' ])
 
-// Обработка создания. Валидируем форму и формируем payload.
 const onCreate = () => {
   formRef.value.validate(async (valid) => {
     if (!valid) {
@@ -135,7 +128,6 @@ const onCreate = () => {
       return;
     }
     isLoading.value = true;
-    // Формируем payload
     const payload = {
       code: form.code,
       display: form.display,
@@ -160,7 +152,6 @@ const onCreate = () => {
   });
 }
 
-// Функция сброса формы
 const resetForm = () => {
   form.code = '';
   form.display = '';

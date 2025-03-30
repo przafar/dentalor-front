@@ -1,8 +1,6 @@
 <template>
   <div class="p-4">
-    <!-- Вкладки -->
     <el-tabs v-model="activeTab" @tab-click="changeTab">
-      <!-- Вкладка Сервисы -->
       <el-tab-pane label="Сервисы" name="services">
         <div class="mb-4 flex justify-between items-center">
           <h4 class="page_title">Сервисы</h4>
@@ -33,7 +31,6 @@
         </el-table>
       </el-tab-pane>
 
-      <!-- Вкладка Анализы -->
       <el-tab-pane label="Анализы" name="analysis">
         <div class="mb-4 flex justify-between items-center">
           <h4 class="page_title">Анализы</h4>
@@ -68,7 +65,6 @@
       </el-tab-pane>
     </el-tabs>
 
-    <!-- Drawer для просмотра -->
     <el-drawer
         title="Просмотр"
         v-model="showDrawerVisible"
@@ -77,7 +73,6 @@
       <ViewTypes :data="selectedItem" />
     </el-drawer>
 
-    <!-- Drawer для редактирования -->
     <el-drawer
         title="Редактировать"
         v-model="editDrawerVisible"
@@ -91,7 +86,6 @@
       </template>
     </el-drawer>
 
-    <!-- Drawer для создания -->
     <el-drawer
         :title="activeTab === 'services' ? 'Добавить сервис' : 'Добавить анализ'"
         v-model="createDrawerVisible"
@@ -111,11 +105,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
-// Импортируем store для сервисов и анализов
-// Предполагается, что методы GET_LIST_OF_ECOUNTER_CLASSES и GET_ANALYSIS_TYPES находятся в одном сторе
 import { servicesStore } from '@/store/services'
 
-// Импорт компонентов для просмотра, создания и редактирования
 import ViewTypes from './components/ViewTypes.vue'
 import CreateForm from './dialogs/encounterClasses/CreateForm.vue'
 import EditForm from './dialogs/encounterClasses/EditForm.vue'
@@ -124,20 +115,16 @@ import EditAnalysisForm from './dialogs/AnalysisTypes/EditForm.vue'
 
 const activeTab = ref('services')
 
-// Получаем данные из store
 const services = servicesStore()
 
-// Вывод данных для таблиц
 const servicesData = computed(() => services.getEncounterClasses)
 const analysisData = computed(() => services.getAnalysisTypes)
 
-// Видимость drawer'ов и выбранный элемент
 const showDrawerVisible = ref(false)
 const editDrawerVisible = ref(false)
 const createDrawerVisible = ref(false)
 const selectedItem = ref(null)
 
-// При загрузке компонента получаем данные для активной вкладки
 onMounted(async () => {
   await fetchData()
 })
@@ -150,46 +137,38 @@ const fetchData = async () => {
   }
 }
 
-// При переключении вкладок обновляем данные
 const changeTab = async (tab) => {
   activeTab.value = tab.props.name
   await fetchData()
 }
 
-// Открыть drawer для просмотра
 const openShowDrawer = async (row, mode) => {
   selectedItem.value = row
-  // Если это сервис, можно получить дополнительные данные, например, типы сервиса
   if (mode === 'services') {
     await services.GET_LIST_OF_ECOUNTER_TYPES(row.code)
   }
   showDrawerVisible.value = true
 }
 
-// Открыть drawer для редактирования
 const openEditDrawer = (row, mode) => {
   selectedItem.value = { ...row }
   editDrawerVisible.value = true
 }
 
-// Открыть drawer для создания (режим зависит от активной вкладки)
 const openCreateDrawer = (mode) => {
   createDrawerVisible.value = true
 }
 
-// Обработчик создания — обновляем данные и закрываем форму
 const handleCreate = async () => {
   await fetchData()
   createDrawerVisible.value = false
 }
 
-// Обработчик редактирования — обновляем данные и закрываем форму
 const handleEdit = async () => {
   await fetchData()
   editDrawerVisible.value = false
 }
 
-// Обработка удаления
 const handleDelete = (row, mode) => {
   ElMessageBox.confirm(
       `Вы уверены, что хотите удалить ${mode === 'services' ? 'сервис' : 'анализ'} "${row.display}"?`,
