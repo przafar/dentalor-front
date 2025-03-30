@@ -18,7 +18,6 @@
           />
         </el-select>
       </el-form-item>
-
       <el-form-item label="Тип услуги" prop="encounter_types">
         <el-select
             v-model="formData.encounter_types"
@@ -26,8 +25,10 @@
             filterable
             placeholder="Выберите тип услуги"
             class="w-full"
+            value-key="id"
+            collapse-tags
         >
-          <el-option v-for="type in getEncounterTypes" :key="type.id" :label="type.display" :value="type.id" />
+          <el-option v-for="type in getEncounterTypes" :key="type.id" :label="type.display" :value="type" />
         </el-select>
       </el-form-item>
 

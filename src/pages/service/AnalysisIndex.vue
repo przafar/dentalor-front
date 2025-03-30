@@ -83,12 +83,7 @@
         v-model="editDrawerVisible"
         direction="rtl"
         size="40%">
-      <template v-if="activeTab === 'services'">
-        <EditForm :data="selectedItem" @edit="handleEdit" @cancel="closeEditDrawer" />
-      </template>
-      <template v-else>
-        <EditAnalysisForm :data="selectedItem" @edit="handleEdit" @cancel="closeEditDrawer" />
-      </template>
+      <EditForm :data="selectedItem" @edit="handleEdit" @cancel="closeEditDrawer" />
     </el-drawer>
 
     <!-- Drawer для создания -->
@@ -96,13 +91,9 @@
         :title="activeTab === 'services' ? 'Добавить сервис' : 'Добавить анализ'"
         v-model="createDrawerVisible"
         direction="rtl"
-        size="60%">
-      <template v-if="activeTab === 'services'">
-        <CreateForm @create="handleCreate" @cancel="closeCreateDrawer" />
-      </template>
-      <template v-else>
-        <CreateAnalysisForm @create="handleCreate" @cancel="closeCreateDrawer" />
-      </template>
+        size="40%">
+      <!-- Компонент формы принимает параметр mode для различения создания сервиса и анализа -->
+      <CreateForm @create="handleCreate" @cancel="closeCreateDrawer" :mode="activeTab" />
     </el-drawer>
   </div>
 </template>
@@ -112,24 +103,23 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 // Импортируем store для сервисов и анализов
-// Предполагается, что методы GET_LIST_OF_ECOUNTER_CLASSES и GET_ANALYSIS_TYPES находятся в одном сторе
 import { servicesStore } from '@/store/services'
+import { analysisStore } from '@/store/analysis'
 
 // Импорт компонентов для просмотра, создания и редактирования
 import ViewTypes from './components/ViewTypes.vue'
 import CreateForm from './dialogs/encounterClasses/CreateForm.vue'
 import EditForm from './dialogs/encounterClasses/EditForm.vue'
-import CreateAnalysisForm from './dialogs/AnalysisTypes/CreateForm.vue'
-import EditAnalysisForm from './dialogs/AnalysisTypes/EditForm.vue'
 
 const activeTab = ref('services')
 
 // Получаем данные из store
 const services = servicesStore()
+const analysis = analysisStore()
 
 // Вывод данных для таблиц
 const servicesData = computed(() => services.getEncounterClasses)
-const analysisData = computed(() => services.getAnalysisTypes)
+const analysisData = computed(() => analysis.getAnalysisTypes)
 
 // Видимость drawer'ов и выбранный элемент
 const showDrawerVisible = ref(false)
@@ -146,13 +136,13 @@ const fetchData = async () => {
   if (activeTab.value === 'services') {
     await services.GET_LIST_OF_ECOUNTER_CLASSES()
   } else if (activeTab.value === 'analysis') {
-    await services.GET_ANALYSIS_TYPES()
+    await analysis.GET_ANALYSIS_TYPES()
   }
 }
 
 // При переключении вкладок обновляем данные
 const changeTab = async (tab) => {
-  activeTab.value = tab.props.name
+  activeTab.value = tab.name
   await fetchData()
 }
 
@@ -200,12 +190,11 @@ const handleDelete = (row, mode) => {
         type: 'warning'
       }
   )
-      .then(async () => {
+      .then(() => {
         if (mode === 'services') {
-          await services.DELETE_ENCOUNTER(row.id)
-          await fetchData()
+          services.deleteEncounterClass(row.id)
         } else if (mode === 'analysis') {
-          services.deleteAnalysisType(row.id)
+          analysis.deleteAnalysisType(row.id)
         }
         ElMessage.success(`${mode === 'services' ? 'Сервис' : 'Анализ'} удален`)
       })
