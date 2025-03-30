@@ -26,6 +26,7 @@ export const servicesStore = defineStore('services', {
     loading: false,
     encounterClasses: [],
     encounterTypes: [],
+    analysisTypes: [],
   }),
 
   actions: {
@@ -72,9 +73,9 @@ export const servicesStore = defineStore('services', {
           return error
         })
     },
-    async CREATE_ENCOUNTER_TYPES(id, body) {
+    async CREATE_ENCOUNTER_TYPES(body) {
       return await axios
-        .post(`valuesets/encounter_types/${id}`, body)
+        .post(`valuesets/encounter_types`, body)
         .then((e) => {
           return e
         })
@@ -82,10 +83,62 @@ export const servicesStore = defineStore('services', {
           return error
         })
     },
+    async DELETE_ENCOUNTER(id) {
+      return await axios
+        .delete(`valuesets/encounter_classes/${id}`)
+        .then((e) => {
+          return e
+        })
+        .catch((error) => {
+          return error
+        })
+    },
+    async GET_ANALYSIS_TYPES(params) {
+      return await axios
+      .get('valuesets/analysis_types', { params: params })
+        .then((e) => {
+            this.analysisTypes = e.data.data
+          return e
+        })
+        .catch((error) => {
+          return error
+        })
+    },
+    async CREATE_ANALYSIS_TYPE(body) {
+      return await axios
+        .post('valuesets/analysis_types', body)
+        .then((e) => {
+          return e
+        })
+        .catch((error) => {
+          return error
+        })
+    },
+    async UPDATE_ANALYSIS_TYPE(id, body) {
+      return await axios
+        .put(`valuesets/analysis_types/${id}`, body)
+        .then((e) => {
+          return e
+        })
+        .catch((error) => {
+          return error
+        })
+    },
+    async DELETE_ANALYSIS_TYPES(id) {
+      return await axios
+        .delete(`valuesets/analysis_types/${id}`)
+        .then((e) => {
+          return e
+        })
+        .catch((error) => {
+          return error
+        })
+    }
   },
 
   getters: {
     getEncounterClasses: (state) => state.encounterClasses,
     getEncounterTypes: (state) => state.encounterTypes,
+    getAnalysisTypes: (state) => state.analysisTypes,
   },
 });
