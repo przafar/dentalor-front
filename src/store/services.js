@@ -73,6 +73,16 @@ export const servicesStore = defineStore('services', {
           return error
         })
     },
+    async UPDATE_ENCOUNTER_TYPES(id, body) {
+        return await axios
+            .put(`valuesets/encounter_types/${id}`, body)
+            .then((e) => {
+            return e
+            })
+            .catch((error) => {
+              return error
+            })
+    },
     async CREATE_ENCOUNTER_TYPES(body) {
       return await axios
         .post(`valuesets/encounter_types`, body)
@@ -92,6 +102,16 @@ export const servicesStore = defineStore('services', {
         .catch((error) => {
           return error
         })
+    },
+    async DELETE_ENCOUNTER_TYPES(id) {
+        return await axios
+            .delete(`valuesets/encounter_types/${id}`)
+            .then((e) => {
+            return e
+            })
+            .catch((error) => {
+            return error
+            })
     },
     async GET_ANALYSIS_TYPES(params) {
       return await axios

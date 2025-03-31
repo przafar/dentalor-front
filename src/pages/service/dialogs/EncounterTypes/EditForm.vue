@@ -1,5 +1,6 @@
 <template>
   <el-form :model="editForm" label-width="100px" label-position="top">
+    {{ props.data }}
     <el-form-item label="Код">
       <el-input v-model="editForm.code" />
     </el-form-item>
@@ -61,7 +62,7 @@ const onSave = async () => {
   }
 
   try {
-    await store.CREATE_ENCOUNTER_TYPES(props.data.class_id, payload)
+    await store.UPDATE_ENCOUNTER_TYPES(props.data.id, payload)
     emit('edit', payload)
   } catch (error) {
     console.error(error)

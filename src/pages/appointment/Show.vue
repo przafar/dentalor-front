@@ -128,20 +128,20 @@
                           v-for="(typ, idx) in getAppointmentData.observation.encounter_types"
                           :key="idx"
                       >
-                        {{ typ.display }} ({{ typ.code }})
+                        -{{ typ.display }} ({{ typ.code }})
                       </li>
                     </ul>
                   </el-descriptions-item>
-                  <el-descriptions-item label="Примечание (note)">
+                  <el-descriptions-item label="Примечание ">
                     {{ getAppointmentData.observation?.note || '—' }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="Жалобы (complaints)">
+                  <el-descriptions-item label="Жалобы ">
                     {{ getAppointmentData.observation?.complaints || '—' }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="Осмотр (clinical_exam)">
+                  <el-descriptions-item label="Осмотр ">
                     {{ getAppointmentData.observation?.clinical_exam || '—' }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="Лечение (assigned_treatment)">
+                  <el-descriptions-item label="Лечение">
                     {{ getAppointmentData.observation?.assigned_treatment || '—' }}
                   </el-descriptions-item>
                 </el-descriptions>
@@ -219,6 +219,14 @@
         />
       </el-drawer>
 
+      <el-dialog
+          title="Анализы"
+          v-model="analysisVisible"
+          width="45%"
+      >
+        <AnalysisFormCreate @success="handleEditSuccess" />
+      </el-dialog>
+
       <!-- Dialog для завершения приема -->
       <el-dialog
           title="Завершить прием"
@@ -239,6 +247,7 @@
 import { onMounted, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { appointmentStore } from "@/store/appointments";
+import { servicesStore } from '@/store/services'
 import { ElMessage } from "element-plus";
 import dayjs from "dayjs";
 import FormCreateObservation from "./components/FormCreateObservation.vue";
@@ -246,10 +255,12 @@ import FormUpdateObservation from "./components/FormUpdateObservation.vue";
 import PatientCard from "@/components/patient/PatientCard.vue";
 import { ArrowDown } from "@element-plus/icons-vue";
 import { Icon } from "@iconify/vue";
+import AnalysisFormCreate from "./dialogs/AnalysisFormCreate.vue";
 
 const route = useRoute();
 const router = useRouter();
 const appointment = appointmentStore();
+const services = servicesStore();
 
 const appointmentId = route.params.id;
 
@@ -257,6 +268,7 @@ const loading = ref(false);
 const createObservationVisible = ref(false);
 const updateObservationVisible = ref(false);
 const completeObservationVisible = ref(false);
+const analysisVisible = ref(false);
 const activeTab = ref("info");
 const selectedData = ref(null);
 
@@ -314,8 +326,9 @@ const handleEditSuccess = () => {
   fetchData();
 };
 
-const sendForAnalysis = (value) => {
-  console.log(value, "sendForAnalysis");
+const sendForAnalysis = async (value) => {
+  analysisVisible.value = true;
+  await services.GET_ANALYSIS_TYPES();
 };
 
 const completeObservation = (value) => {
