@@ -82,6 +82,16 @@ export const appointmentStore = defineStore('appointment', {
                 .catch((error) => {
                     return error
                 })
+        },
+        async COMPLETE_APPOINTMENT(id) {
+            return await axios
+                .put(`appointments/complete/${id}`)
+                .then((e) => {
+                    return e
+                })
+                .catch((error) => {
+                    return error
+                })
         }
 
     },

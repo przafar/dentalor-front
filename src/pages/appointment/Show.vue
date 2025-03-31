@@ -13,198 +13,165 @@
       </div>
 
       <div class="p-4 w-full">
-
-        <div class="mt-4 flex space-x-4">
-          <template v-if="isWaitlistOrArrived">
-            <el-button type="primary" @click="startWork">Начать работу</el-button>
-          </template>
-          <template v-else-if="getAppointmentData?.observation">
-            <el-button type="success" @click="changeService(getAppointmentData.observation)">
-              Изменить услугу
-            </el-button>
-          </template>
-          <template v-else-if="getAppointmentData?.status === 'in-progress'">
-            <el-button type="success" @click="addServices(getAppointmentData)">
-              Добавить услуги
-            </el-button>
-          </template>
+        <div class="flex justify-between items-center">
+          <div class=" flex space-x-4">
+            <template v-if="isWaitlistOrArrived">
+              <el-button type="primary" @click="startWork">Начать работу</el-button>
+            </template>
+            <template v-else-if="getAppointmentData?.observation && getAppointmentData?.status === 'in-progress'">
+              <el-dropdown @command="handleCommand" trigger="click">
+                <el-button type="primary">
+                  <Icon icon="line-md:list-3-filled" class="text-[16px] " :ssr="true" />
+                  <span class="ml-2">Действие</span>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="change">
+                      <Icon icon="material-symbols:medical-services-outline" class="text-[20px] text-green-600" :ssr="true" />
+                      <span class="text-green-600 font-medium ml-2">Изменить услугу</span>
+                    </el-dropdown-item>
+                    <el-dropdown-item command="send">
+                      <Icon icon="material-symbols:send-outline-rounded" class="text-[20px] text-blue-600" :ssr="true" />
+                      <span class="text-blue-600 font-medium ml-2">Отправить для анализа</span>
+                    </el-dropdown-item>
+                    <el-dropdown-item command="complete">
+                      <Icon icon="material-symbols:stop-circle-outline-rounded" class="text-[20px] text-red-600" :ssr="true" />
+                      <span class="text-red-600 font-medium ml-2">Завершить прием</span>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </template>
+            <template v-else-if="getAppointmentData?.status === 'completed'">
+              <el-button type="success" >
+                Распечатать
+              </el-button>
+            </template>
+            <template v-else-if="getAppointmentData?.status === 'in-progress'">
+              <el-button type="success" @click="addServices(getAppointmentData)">
+                Добавить услуги
+              </el-button>
+            </template>
+          </div>
+          <div>
+            <div>
+              <span>Статус:</span>
+              <el-tag class="ml-2" :type="getStatusTag(getAppointmentData?.status).type">
+                {{ getStatusTag(getAppointmentData?.status).text }}
+              </el-tag>
+            </div>
+          </div>
         </div>
-
-
 
         <el-tabs v-model="activeTab" class="mt-4 w-full">
           <el-tab-pane label="Информация о приёме" name="info" class="w-full">
             <div class="w-full">
-              <el-card class="rounded-xl w-full my-6">
+              <el-card class="rounded-xl w-full mb-2">
                 <template #header>
                   <h2 class="text-xl font-semibold">Информация о приёме</h2>
                 </template>
+                <el-descriptions :column="2" border>
+                  <el-descriptions-item label="ID приема">
+                    {{ getAppointmentData?.id }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Статус">
+                    <el-tag :type="getStatusTag(getAppointmentData?.status).type">
+                      {{ getStatusTag(getAppointmentData?.status).text }}
+                    </el-tag>
+                  </el-descriptions-item>
 
-                <!-- Первая строка -->
-                <el-row :gutter="20" type="flex" align="stretch">
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>ID приема:</strong>
-                      <span>{{ getAppointmentData?.id }}</span>
-                    </div>
-                  </el-col>
+                  <el-descriptions-item label="Класс встречи">
+                    {{ getAppointmentData?.encounter_class?.display || '—' }}
+                  </el-descriptions-item>
 
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Статус:</strong>
-                      <el-tag :type="getStatusTag(getAppointmentData?.status).type">
-                        {{ getStatusTag(getAppointmentData?.status).text }}
-                      </el-tag>
-                    </div>
-                  </el-col>
+                  <el-descriptions-item label="Дата приема">
+                    {{ formatDate(getAppointmentData?.date) }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Причина">
+                    {{ getAppointmentData?.reason_text || '—' }}
+                  </el-descriptions-item>
 
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Тип встречи:</strong>
-                      <span>{{ getAppointmentData?.encounter_type || '—' }}</span>
-                    </div>
-                  </el-col>
 
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Класс встречи:</strong>
-                      <span>{{ getAppointmentData?.encounter_class?.display || '—' }}</span>
-                    </div>
-                  </el-col>
-
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Причина:</strong>
-                      <span>{{ getAppointmentData?.reason_text || '—' }}</span>
-                    </div>
-                  </el-col>
-                </el-row>
-
-                <!-- Вторая строка -->
-                <el-row :gutter="20" type="flex" align="stretch" class="mt-4">
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Дата приема:</strong>
-                      <span>{{ formatDate(getAppointmentData?.date) }}</span>
-                    </div>
-                  </el-col>
-
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Время:</strong>
-                      <span>{{ getAppointmentData?.time || '—' }}</span>
-                    </div>
-                  </el-col>
-
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Организация (ID):</strong>
-                      <span>{{ getAppointmentData?.organization_id }}</span>
-                    </div>
-                  </el-col>
-
-                  <el-col :xs="24" :sm="12" :md="12">
-                    <div>
-                      <strong>Создан:</strong>
-                      <span>{{ formatDate(getAppointmentData?.created_at) }}</span>
-                    </div>
-                    <div>
-                      <strong>Обновлен:</strong>
-                      <span>{{ formatDate(getAppointmentData?.updated_at) }}</span>
-                    </div>
-                  </el-col>
-
-                  <el-col :xs="24" :sm="12" :md="12">
-
-                  </el-col>
-                </el-row>
+                  <el-descriptions-item label="Обновлен">
+                    {{ formatDate(getAppointmentData?.updated_at) }}
+                  </el-descriptions-item>
+                </el-descriptions>
               </el-card>
 
-              <el-card class="rounded-xl w-full mb-4">
+              <el-card class="mt-4 rounded-xl card-shadow">
                 <template #header>
-                  <h2 class="text-xl font-semibold">Слоты приема</h2>
+                  <h2 class="text-xl font-semibold">Данные наблюдения</h2>
                 </template>
-                <el-table
-                    :data="getAppointmentData?.slotsDetails"
-                    stripe
-                    style="width: 100%"
-                    empty-text="Нет данных"
-                >
-                  <el-table-column prop="code" label="Слот" />
-                  <el-table-column prop="start" label="Начало" />
-                  <el-table-column prop="end" label="Окончание" />
-                  <el-table-column prop="minutes_duration" label="Длительность (мин)" />
-                  <el-table-column prop="status" label="Статус" />
-                  <el-table-column prop="date" label="Дата" />
-                </el-table>
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item label="ID наблюдения">
+                    {{ getAppointmentData.observation?.id }}
+                  </el-descriptions-item>
+                  <el-descriptions-item
+                      label="Класс наблюдения"
+                      v-if="getAppointmentData.observation?.encounter_class?.length"
+                  >
+                    <ul>
+                      <li
+                          v-for="(cls, idx) in getAppointmentData.observation.encounter_class"
+                          :key="idx"
+                      >
+                        {{ cls.display }} ({{ cls.code }})
+                      </li>
+                    </ul>
+                  </el-descriptions-item>
+                  <el-descriptions-item
+                      label="Тип(ы) наблюдения"
+                      v-if="getAppointmentData.observation?.encounter_types?.length"
+                  >
+                    <ul>
+                      <li
+                          v-for="(typ, idx) in getAppointmentData.observation.encounter_types"
+                          :key="idx"
+                      >
+                        {{ typ.display }} ({{ typ.code }})
+                      </li>
+                    </ul>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Примечание (note)">
+                    {{ getAppointmentData.observation?.note || '—' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Жалобы (complaints)">
+                    {{ getAppointmentData.observation?.complaints || '—' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Осмотр (clinical_exam)">
+                    {{ getAppointmentData.observation?.clinical_exam || '—' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Лечение (assigned_treatment)">
+                    {{ getAppointmentData.observation?.assigned_treatment || '—' }}
+                  </el-descriptions-item>
+                </el-descriptions>
               </el-card>
             </div>
           </el-tab-pane>
 
           <el-tab-pane
               v-if="getAppointmentData?.observation"
-              label="Осмотр врача"
+              label="Детальная информация о приеме"
               name="observation"
           >
-            <el-card class="mt-4 rounded-xl card-shadow">
+            <el-card class="rounded-xl w-full mb-4">
               <template #header>
-                <h2 class="text-xl font-semibold">Данные наблюдения</h2>
+                <h2 class="text-xl font-semibold">Слоты приема</h2>
               </template>
-
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-gray-700">
-                <div>
-                  <span class="font-medium">ID наблюдения:</span>
-                  <span>{{ getAppointmentData.observation.id }}</span>
-                </div>
-
-                <!-- Пример: Encounter Class (массив объектов) -->
-                <div v-if="getAppointmentData.observation.encounter_class?.length">
-                  <span class="font-medium">Класс наблюдения:</span>
-                  <ul>
-                    <li
-                        v-for="(cls, idx) in getAppointmentData.observation.encounter_class"
-                        :key="idx"
-                    >
-                      {{ cls.display }} ({{ cls.code }})
-                    </li>
-                  </ul>
-                </div>
-
-                <!-- Пример: Encounter Types (массив объектов) -->
-                <div v-if="getAppointmentData.observation.encounter_types?.length">
-                  <span class="font-medium">Тип(ы) наблюдения:</span>
-                  <ul>
-                    <li
-                        v-for="(typ, idx) in getAppointmentData.observation.encounter_types"
-                        :key="idx"
-                    >
-                      {{ typ.display }} ({{ typ.code }})
-                    </li>
-                  </ul>
-                </div>
-
-                <!-- Остальные поля Observation -->
-                <div>
-                  <span class="font-medium">Примечание (note):</span>
-                  <span>{{ getAppointmentData.observation.note || '—' }}</span>
-                </div>
-                <div>
-                  <span class="font-medium">Жалобы (complaints):</span>
-                  <span>{{ getAppointmentData.observation.complaints || '—' }}</span>
-                </div>
-                <div>
-                  <span class="font-medium">Осмотр (clinical_exam):</span>
-                  <span>{{ getAppointmentData.observation.clinical_exam || '—' }}</span>
-                </div>
-                <div>
-                  <span class="font-medium">Лечение (assigned_treatment):</span>
-                  <span>{{ getAppointmentData.observation.assigned_treatment || '—' }}</span>
-                </div>
-              </div>
+              <el-table
+                  :data="getAppointmentData?.slotsDetails"
+                  stripe
+                  style="width: 100%"
+                  empty-text="Нет данных"
+              >
+                <el-table-column prop="code" label="Слот" />
+                <el-table-column prop="start" label="Начало" />
+                <el-table-column prop="end" label="Окончание" />
+                <el-table-column prop="minutes_duration" label="Длительность (мин)" />
+                <el-table-column prop="status" label="Статус" />
+                <el-table-column prop="date" label="Дата" />
+              </el-table>
             </el-card>
-          </el-tab-pane>
-
-          <el-tab-pane label="История" name="history">
             <el-card class="mt-4 rounded-xl card-shadow">
               <template #header>
                 <h2 class="text-xl font-semibold">История статусов</h2>
@@ -216,16 +183,15 @@
                   empty-text="Нет истории"
               >
                 <el-table-column prop="action" label="Действие" width="150" />
-
                 <el-table-column prop="status" label="Статус" width="150" />
                 <el-table-column prop="user" label="Пользователь" />
               </el-table>
             </el-card>
           </el-tab-pane>
-
         </el-tabs>
       </div>
 
+      <!-- Drawer для создания наблюдения -->
       <el-drawer
           title="Услуги"
           v-model="createObservationVisible"
@@ -239,7 +205,7 @@
         />
       </el-drawer>
 
-
+      <!-- Drawer для редактирования наблюдения -->
       <el-drawer
           title="Услуги"
           v-model="updateObservationVisible"
@@ -252,6 +218,19 @@
             @success="handleEditSuccess"
         />
       </el-drawer>
+
+      <!-- Dialog для завершения приема -->
+      <el-dialog
+          title="Завершить прием"
+          v-model="completeObservationVisible"
+          width="35%"
+      >
+        <span>Вы уверены, что хотите завершить прием?</span>
+        <div slot="footer" class="dialog-footer mt-4 flex justify-end">
+          <el-button type="primary" @click="confirmCompleteObservation">Подтвердить</el-button>
+          <el-button @click="completeObservationVisible = false">Отмена</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -265,6 +244,8 @@ import dayjs from "dayjs";
 import FormCreateObservation from "./components/FormCreateObservation.vue";
 import FormUpdateObservation from "./components/FormUpdateObservation.vue";
 import PatientCard from "@/components/patient/PatientCard.vue";
+import { ArrowDown } from "@element-plus/icons-vue";
+import { Icon } from "@iconify/vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -275,11 +256,11 @@ const appointmentId = route.params.id;
 const loading = ref(false);
 const createObservationVisible = ref(false);
 const updateObservationVisible = ref(false);
+const completeObservationVisible = ref(false);
 const activeTab = ref("info");
 const selectedData = ref(null);
 
 const getAppointmentData = computed(() => appointment.getAppointmentData);
-
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
@@ -320,15 +301,54 @@ const addServices = (value) => {
   createObservationVisible.value = true;
   selectedData.value = value;
 };
+
 const changeService = (value) => {
   updateObservationVisible.value = true;
   selectedData.value = value;
-  console.log(value, 'wwww')
+  console.log(value, "changeService");
 };
 
 const handleEditSuccess = () => {
   createObservationVisible.value = false;
+  updateObservationVisible.value = false;
   fetchData();
+};
+
+const sendForAnalysis = (value) => {
+  console.log(value, "sendForAnalysis");
+};
+
+const completeObservation = (value) => {
+  selectedData.value = value;
+  completeObservationVisible.value = true;
+};
+
+const confirmCompleteObservation = async () => {
+  try {
+    await appointment.COMPLETE_APPOINTMENT(appointmentId);
+    ElMessage.success("Прием успешно завершен");
+    completeObservationVisible.value = false;
+    await fetchData();
+  } catch (error) {
+    console.error(error);
+    ElMessage.error("Ошибка завершения приема");
+  }
+};
+
+const handleCommand = (command) => {
+  const obs = getAppointmentData.value?.observation;
+  if (!obs) return;
+  switch (command) {
+    case "change":
+      changeService(obs);
+      break;
+    case "send":
+      sendForAnalysis(obs);
+      break;
+    case "complete":
+      completeObservation(obs);
+      break;
+  }
 };
 
 const goBack = () => {
@@ -337,20 +357,20 @@ const goBack = () => {
 
 const getStatusTag = (status) => {
   switch (status) {
-    case 'waitlist':
-      return { text: 'в ожидании', type: 'warning' };
-    case 'booked':
-      return { text: 'забронировано', type: 'info' };
-    case 'arrived':
-      return { text: 'прибыл', type: 'success' };
-    case 'in-progress':
-      return { text: 'в процессе', type: 'primary' };
-    case 'fulfilled':
-      return { text: 'выполнено', type: 'success' };
-    case 'cancelled':
-      return { text: 'Отменено', type: 'danger' };
+    case "waitlist":
+      return {text: "В ожидании", type: "warning"};
+    case "booked":
+      return {text: "Забронировано", type: "info"};
+    case "arrived":
+      return {text: "Прибыл", type: "success"};
+    case "in-progress":
+      return {text: "В процессе", type: "primary"};
+    case "completed":
+      return {text: "Выполнено", type: "success"};
+    case "cancelled":
+      return {text: "Отменено", type: "danger"};
     default:
-      return { text: status, type: 'info' };
+      return {text: status, type: "info"};
   }
 };
 </script>

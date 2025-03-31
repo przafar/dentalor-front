@@ -100,6 +100,8 @@ const observation = observationStore()
 const services = servicesStore()
 const router = useRouter()
 
+const emit = defineEmits(['success'])
+
 
 const getEncounterTypes = computed(() => services.encounterTypes)
 
@@ -182,6 +184,7 @@ async function handleSubmit() {
     ElMessage.success('Наблюдение (observation) успешно создано!')
     emit('success')
   } catch (err) {
+
     console.error('Error creating observation:', err)
     ElMessage.error('Ошибка при создании Observation')
   }
