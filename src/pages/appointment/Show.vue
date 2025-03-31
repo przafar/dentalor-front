@@ -220,11 +220,11 @@
       </el-drawer>
 
       <el-dialog
-          title="Анализы"
+          title="Создание запроса на анализ"
           v-model="analysisVisible"
           width="45%"
       >
-        <AnalysisFormCreate @success="handleEditSuccess" />
+        <AnalysisFormCreate :initialData="selectedData" @success="handleEditSuccess" />
       </el-dialog>
 
       <!-- Dialog для завершения приема -->
@@ -327,6 +327,7 @@ const handleEditSuccess = () => {
 };
 
 const sendForAnalysis = async (value) => {
+  selectedData.value = getAppointmentData.value;
   analysisVisible.value = true;
   await services.GET_ANALYSIS_TYPES();
 };

@@ -96,6 +96,7 @@ import { ElMessage } from 'element-plus'
 import { observationStore } from '@/store/observations'
 import { servicesStore } from '@/store/services'
 
+
 const observation = observationStore()
 const services = servicesStore()
 const router = useRouter()

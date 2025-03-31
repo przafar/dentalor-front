@@ -107,10 +107,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Сервис" prop="service">
-          <el-select v-model="roleForm.service" placeholder="Выберите сервис" multiple>
+          <el-select v-model="roleForm.service" placeholder="Выберите сервис" value-key="id" multiple clearable>
             <el-option
                 v-for="item in service.getEncounterClasses"
-                :key="item.code"
+                :key="item.id"
                 :label="item.display"
                 :value="item.code"
 
