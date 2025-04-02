@@ -47,13 +47,18 @@
               </el-dropdown>
             </template>
             <template v-else-if="getAppointmentData?.status === 'completed'">
+              <el-button @click="returnAppointment" type="info" >
+                <Icon icon="material-symbols:rotate-left-rounded" class="text-[20px] text-white" :ssr="true" />
+              </el-button>
               <el-button @click="generatePdfForm" type="success" >
-                Распечатать
+                <Icon icon="material-symbols:print-outline-rounded" class="text-[20px] text-white" :ssr="true" />
+                <span class="ml-2">Распечатать</span>
               </el-button>
             </template>
             <template v-else-if="getAppointmentData?.status === 'in-progress'">
               <el-button type="success" @click="addServices(getAppointmentData)">
-                Добавить услуги
+                <Icon icon="material-symbols:medical-services-outline" class="text-[20px] text-white" :ssr="true" />
+                <span class="ml-2">Добавить услуги</span>
               </el-button>
             </template>
           </div>
@@ -318,6 +323,20 @@
           <el-button @click="completeObservationVisible = false">Отмена</el-button>
         </div>
       </el-dialog>
+
+      <el-dialog
+          title="Подтверждение"
+          v-model="confirmReturnVisible"
+          width="30%"
+      >
+        <span>Вы уверены, что хотите вернуть прием в режим (in-progress)?</span>
+        <span slot="footer" class="dialog-footer">
+        <div class="mt-4">
+          <el-button @click="confirmReturnVisible = false">Отмена</el-button>
+          <el-button type="primary" @click="confirmReturnAppointment">Подтвердить</el-button>
+        </div>
+      </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -333,11 +352,11 @@ import FormCreateObservation from "./components/FormCreateObservation.vue";
 import FormUpdateObservation from "./components/FormUpdateObservation.vue";
 import FormPrescriptionCreate from "./components/FormPrescriptionCreate.vue";
 import FormPrescriptionUpdate from "./components/FormPrescriptionUpdate.vue"
-import DocumentPdfForm from "./components/DocumentPdfForm.vue";
+import AnalysisFormCreate from "./dialogs/AnalysisFormCreate.vue";
+import DocumentPdfForm from "./dialogs/DocumentPdfForm.vue";
 import PatientCard from "@/components/patient/PatientCard.vue";
 import { ArrowDown } from "@element-plus/icons-vue";
 import { Icon } from "@iconify/vue";
-import AnalysisFormCreate from "./dialogs/AnalysisFormCreate.vue";
 
 
 const route = useRoute();
@@ -353,6 +372,7 @@ const updateObservationVisible = ref(false);
 const completeObservationVisible = ref(false);
 const createPrescriptionVisible = ref(false);
 const updatePrescriptionVisible = ref(false);
+const confirmReturnVisible = ref(false)
 const analysisVisible = ref(false);
 const documentPdfVisible = ref(false)
 const activeTab = ref("info");
@@ -395,6 +415,22 @@ const startWork = async () => {
     ElMessage.error("Ошибка обновления статуса приема");
   }
 };
+
+const returnAppointment = () => {
+  confirmReturnVisible.value = true
+}
+const confirmReturnAppointment = async () => {
+  try {
+    await appointment.UPDATE_APPOINTMENT_STATUS(appointmentId, { status: "in-progress" })
+    ElMessage.success("Прием переведен в режим in-progress")
+    await fetchData();
+  } catch (error) {
+    console.error(error)
+    ElMessage.error("Ошибка обновления статуса приема")
+  } finally {
+    confirmReturnVisible.value = false
+  }
+}
 
 const addServices = (value) => {
   createObservationVisible.value = true;
@@ -450,6 +486,7 @@ const generatePdfForm = () => {
   documentPdfVisible.value = true;
   selectedData.value = getAppointmentData.value;
 }
+
 
 const handleCommand = (command) => {
   const obs = getAppointmentData.value?.observation;

@@ -11,7 +11,9 @@
         </a>
       </div>
     </div>
-    <div v-else>Загрузка PDF...</div>
+    <div v-else>
+      <div v-loading="true"></div>
+    </div>
   </div>
 </template>
 
@@ -21,9 +23,9 @@ import { prescriptionStore } from "@/store/prescription"
 import { Icon } from "@iconify/vue";
 
 const props = defineProps({
-  initialData: { type: Object, required: true }
+  initialData: {type: Object, required: true}
 })
-const emit = defineEmits(['success'])
+const emit = defineEmits([ 'success' ])
 const store = prescriptionStore()
 
 const pdfUrl = ref('')
