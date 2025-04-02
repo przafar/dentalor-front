@@ -30,6 +30,10 @@
                       <Icon icon="material-symbols:medical-services-outline" class="text-[20px] text-green-600" :ssr="true" />
                       <span class="text-green-600 font-medium ml-2">Изменить услугу</span>
                     </el-dropdown-item>
+                    <el-dropdown-item :disabled="getAppointmentData.prescriptions && getAppointmentData.prescriptions.length" command="reciept">
+                      <Icon icon="material-symbols:lab-profile-outline-rounded" class="text-[20px] text-blue-600" :ssr="true" />
+                      <span class="text-blue-600 font-medium ml-2">Добавить рецепт</span>
+                    </el-dropdown-item>
                     <el-dropdown-item command="send">
                       <Icon icon="material-symbols:send-outline-rounded" class="text-[20px] text-blue-600" :ssr="true" />
                       <span class="text-blue-600 font-medium ml-2">Отправить для анализа</span>
@@ -43,7 +47,7 @@
               </el-dropdown>
             </template>
             <template v-else-if="getAppointmentData?.status === 'completed'">
-              <el-button type="success" >
+              <el-button @click="generatePdfForm" type="success" >
                 Распечатать
               </el-button>
             </template>
@@ -146,6 +150,46 @@
                   </el-descriptions-item>
                 </el-descriptions>
               </el-card>
+
+
+              <el-card class="mt-4 rounded-xl card-shadow" v-if="getAppointmentData.prescriptions && getAppointmentData.prescriptions.length"  v-for="(prescription, pIdx) in getAppointmentData.prescriptions" :key="prescription.id" >
+                <template #header>
+                  <div class="flex justify-between">
+                    <h2 class="text-xl font-semibold">Данные рецепта</h2>
+                    <el-button @click="updatePrescription(prescription)" v-if="!getAppointmentData?.status === 'completed'" type="primary">
+                      <Icon icon="material-symbols:edit-outline-rounded" class="text-[18px] text-white" :ssr="true" />
+                      <span class="ml-2">
+                        Редактировать
+                      </span>
+                    </el-button>
+                  </div>
+                </template>
+                <div>
+                  <el-descriptions :column="1" border>
+
+
+                    <el-descriptions-item label="Врач">
+                      {{ prescription.practitioner.last_name }} {{ prescription.practitioner.first_name }} {{ prescription.practitioner.middle_name }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="Дата рецепта">
+                      {{ prescription.prescription_date }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="Лекарства">
+                      <ul class="list-disc pl-4">
+                        <li v-for="(med, index) in prescription.medications" :key="index">
+                          <span class="font-medium">{{ med.name }}</span> – дозировка: {{ med.dosage }}, длительность: {{ med.duration }}, частота: {{ med.frequency }}
+                        </li>
+                      </ul>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="Примечание">
+                      {{ prescription.notes || '—' }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="Статус печати">
+                      {{ prescription.printed_status ? 'Печатан' : 'Не печатан' }}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
+              </el-card>
             </div>
           </el-tab-pane>
 
@@ -191,7 +235,6 @@
         </el-tabs>
       </div>
 
-      <!-- Drawer для создания наблюдения -->
       <el-drawer
           title="Услуги"
           v-model="createObservationVisible"
@@ -205,15 +248,52 @@
         />
       </el-drawer>
 
-      <!-- Drawer для редактирования наблюдения -->
       <el-drawer
           title="Услуги"
           v-model="updateObservationVisible"
           direction="rtl"
-          size="40%"
+          size="45%"
           destroy-on-close
       >
         <FormUpdateObservation
+            :initialData="selectedData"
+            @success="handleEditSuccess"
+        />
+      </el-drawer>
+
+      <el-drawer
+          title="Рецепт"
+          v-model="createPrescriptionVisible"
+          direction="rtl"
+          size="40%"
+          destroy-on-close
+      >
+        <FormPrescriptionCreate
+            :initialData="selectedData"
+            @success="handleEditSuccess"
+        />
+      </el-drawer>
+      <el-drawer
+          title="Изменить рецепт"
+          v-model="updatePrescriptionVisible"
+          direction="rtl"
+          size="40%"
+          destroy-on-close
+      >
+        <FormPrescriptionUpdate
+            :initialData="selectedData"
+            :prescriptionData="selectedPrescription"
+            @success="handleEditSuccess"
+        />
+      </el-drawer>
+      <el-drawer
+          title="Документ"
+          v-model="documentPdfVisible"
+          direction="rtl"
+          size="65%"
+          destroy-on-close
+      >
+        <DocumentPdfForm
             :initialData="selectedData"
             @success="handleEditSuccess"
         />
@@ -227,7 +307,6 @@
         <AnalysisFormCreate :initialData="selectedData" @success="handleEditSuccess" />
       </el-dialog>
 
-      <!-- Dialog для завершения приема -->
       <el-dialog
           title="Завершить прием"
           v-model="completeObservationVisible"
@@ -252,10 +331,14 @@ import { ElMessage } from "element-plus";
 import dayjs from "dayjs";
 import FormCreateObservation from "./components/FormCreateObservation.vue";
 import FormUpdateObservation from "./components/FormUpdateObservation.vue";
+import FormPrescriptionCreate from "./components/FormPrescriptionCreate.vue";
+import FormPrescriptionUpdate from "./components/FormPrescriptionUpdate.vue"
+import DocumentPdfForm from "./components/DocumentPdfForm.vue";
 import PatientCard from "@/components/patient/PatientCard.vue";
 import { ArrowDown } from "@element-plus/icons-vue";
 import { Icon } from "@iconify/vue";
 import AnalysisFormCreate from "./dialogs/AnalysisFormCreate.vue";
+
 
 const route = useRoute();
 const router = useRouter();
@@ -268,9 +351,13 @@ const loading = ref(false);
 const createObservationVisible = ref(false);
 const updateObservationVisible = ref(false);
 const completeObservationVisible = ref(false);
+const createPrescriptionVisible = ref(false);
+const updatePrescriptionVisible = ref(false);
 const analysisVisible = ref(false);
+const documentPdfVisible = ref(false)
 const activeTab = ref("info");
 const selectedData = ref(null);
+const selectedPrescription = ref(null)
 
 const getAppointmentData = computed(() => appointment.getAppointmentData);
 
@@ -323,6 +410,8 @@ const changeService = (value) => {
 const handleEditSuccess = () => {
   createObservationVisible.value = false;
   updateObservationVisible.value = false;
+  updatePrescriptionVisible.value = false;
+  createPrescriptionVisible.value = false;
   fetchData();
 };
 
@@ -348,6 +437,19 @@ const confirmCompleteObservation = async () => {
     ElMessage.error("Ошибка завершения приема");
   }
 };
+const createReciept = (value) => {
+  createPrescriptionVisible.value = true;
+  selectedData.value = getAppointmentData.value;
+}
+const updatePrescription = (value) => {
+  updatePrescriptionVisible.value = true;
+  selectedPrescription.value = value;
+  selectedData.value = getAppointmentData.value;
+}
+const generatePdfForm = () => {
+  documentPdfVisible.value = true;
+  selectedData.value = getAppointmentData.value;
+}
 
 const handleCommand = (command) => {
   const obs = getAppointmentData.value?.observation;
@@ -361,6 +463,9 @@ const handleCommand = (command) => {
       break;
     case "complete":
       completeObservation(obs);
+      break;
+    case "reciept":
+      createReciept(obs);
       break;
   }
 };
