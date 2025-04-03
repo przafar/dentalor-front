@@ -115,7 +115,7 @@ const patientId = route.params.id;
 
 const form = ref({
   time: null,
-  date: moment().format('YYYY-MM-DD'), // Устанавливаем дату приема по умолчанию на сегодня
+  date: moment().format('YYYY-MM-DD'),
   practitioner_role: null,
   encounter_class: '',
   reason_text: '',
@@ -213,12 +213,7 @@ const submitForm = () => {
   myForm.value.validate(async (valid) => {
     if (!valid) return;
     if (form.value.withDate && (!form.value.slots || form.value.slots.length === 0)) {
-      const firstSlot = freeSlots.value[0];
-      if (firstSlot) {
-        form.value.time = firstSlot.start;
-        form.value.date = firstSlot.date;
-        form.value.slots = [firstSlot.id];
-      }
+      form.value.slots = null;
     }
     const appointmentPayload = {
       date: form.value.date,

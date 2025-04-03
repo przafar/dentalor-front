@@ -161,7 +161,7 @@
                 <template #header>
                   <div class="flex justify-between">
                     <h2 class="text-xl font-semibold">Данные рецепта</h2>
-                    <el-button @click="updatePrescription(prescription)" v-if="!getAppointmentData?.status === 'completed'" type="primary">
+                    <el-button @click="updatePrescription(prescription)" v-if="getAppointmentData?.status === 'in-progress'" type="primary">
                       <Icon icon="material-symbols:edit-outline-rounded" class="text-[18px] text-white" :ssr="true" />
                       <span class="ml-2">
                         Редактировать
