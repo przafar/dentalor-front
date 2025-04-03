@@ -1,5 +1,6 @@
 <template>
-  <div class="w-full bg-white rounded-xl shadow-lg border border-gray-200 p-4 h-[490px]">
+  <div class="w-full bg-white rounded-xl shadow-lg border border-gray-200 p-4 h-[630px]">
+
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-semibold text-gray-800">Текущая запись</h2>
       <div class="flex items-center gap-2">
@@ -41,7 +42,25 @@
       </div>
     </div>
 
-    <FullCalendar class="h-[400px]" ref="calendarRef" :options="calendarOptions" />
+    <FullCalendar class="h-[500px]" ref="calendarRef" :options="calendarOptions" />
+
+    <div class="mt-4">
+      <div class="flex flex-wrap gap-2">
+        <div
+            v-for="(color, status) in statusColors"
+            :key="status"
+            class="flex items-center gap-2"
+        >
+          <div
+              :style="{ backgroundColor: color }"
+              class="w-4 h-4 rounded border border-gray-300"
+          ></div>
+          <span class="text-gray-700 capitalize text-sm">
+            {{ getStatusTag(status)?.text }}
+          </span>
+        </div>
+      </div>
+    </div>
 
     <el-dialog
         v-model="isFullScreenDialogVisible"
@@ -111,23 +130,33 @@ function nextDay() {
   gotoCurrentDate()
 }
 
-/**
- * Из массива appointments берём только те, у которых status = 'waitlist' или 'booked'.
- * Формируем события FullCalendar (start, end).
- */
+
+const statusColors = {
+  waitlist: '#A0AEC0',
+  booked: '#3182CE',
+  arrived: '#63B3ED',
+  'in-progress': '#ED8936',
+  completed: '#48BB78',
+  cancelled: '#F56565',
+}
+
 const calendarEvents = computed(() => {
   if (!props.info || !props.info.data) return []
   return props.info.data
-      .filter(app => ['waitlist', 'booked'].includes(app.status))
+      .filter(app => ['waitlist', 'booked', 'in-progress', 'completed', 'arrived', 'cancelled'].includes(app.status))
       .map(app => {
         const timePart = app.time || '09:00:00'
         const startDate = moment(app.date).format('YYYY-MM-DD') + 'T' + timePart
-        const endDate = moment(startDate).add(30, 'minutes').toISOString()
+        const endDate = moment(startDate).add(15, 'minutes').toISOString()
+        const color = statusColors[app.status] || '#999' // цвет по умолчанию
         return {
           id: app.id,
-          title: app.encounter_class?.display || app.reason_text || 'Appointment',
+          title: `${app.encounter_class?.display} ${app.practitioner.last_name} ${app.practitioner.first_name}`,
           start: startDate,
-          end: endDate
+          end: endDate,
+          backgroundColor: color,
+          borderColor: color,
+          textColor: '#fff'
         }
       })
 })
@@ -175,6 +204,25 @@ function openFullScreen() {
 function closeFullScreen() {
   isFullScreenDialogVisible.value = false
 }
+
+const getStatusTag = (status) => {
+  switch (status) {
+    case "waitlist":
+      return {text: "В ожидании", type: "warning"};
+    case "booked":
+      return {text: "Забронировано", type: "info"};
+    case "arrived":
+      return {text: "Прибыл", type: "success"};
+    case "in-progress":
+      return {text: "В процессе", type: "primary"};
+    case "completed":
+      return {text: "Выполнено", type: "success"};
+    case "cancelled":
+      return {text: "Отменено", type: "danger"};
+    default:
+      return {text: status, type: "info"};
+  }
+};
 
 watch(() => props.info, () => {
 
