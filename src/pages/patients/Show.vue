@@ -145,12 +145,12 @@ const closeModal = (done) => {
 
 const services = ref([{ value: "LA", label: "LA (Лазерная терапия)" }]);
 
-// Функция для редактирования приёма (доработайте по необходимости)
+
+
 const editAppointment = (row) => {
   console.log("Редактирование приёма:", row);
 };
 
-// Функция для удаления приёма (доработайте по необходимости)
 const deleteAppointment = (id) => {
   console.log("Удаление приёма с id:", id);
 };
