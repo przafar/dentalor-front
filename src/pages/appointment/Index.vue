@@ -1,18 +1,65 @@
 <template>
   <div>
-    <div class="p-4">
-      <el-radio-group v-model="viewMode" size="medium">
-        <el-radio-button label="calendar">Календарь</el-radio-button>
-        <el-radio-button label="table">Таблица</el-radio-button>
-      </el-radio-group>
+    <div class="flex justify-between px-4 mt-4">
+      <div>
+        <h4 class="text-2xl font-bold text-gray-700">Запись на приём</h4>
+      </div>
+      <div>
+        <el-radio-group v-model="viewMode" size="medium">
+          <el-radio-button label="calendar">Календарь</el-radio-button>
+          <el-radio-button label="table">Таблица</el-radio-button>
+        </el-radio-group>
+      </div>
     </div>
 
     <div class="p-4">
-      <div v-if="viewMode === 'calendar'" style="height: 600px;">
-        <FullCalendar :options="calendarOptions" />
+      <FormFilter v-model="searchValue" @search="onSearch" />
+
+      <div v-if="viewMode === 'calendar'" class="border shadow-lg rounded-lg p-4 mt-4 mb-5" style="height: 100%">
+        <div class="flex items-center justify-end gap-2 mb-4">
+          <el-button @click="prevDay">
+            <Icon icon="material-symbols:chevron-left-rounded" class="text-[28px]" :ssr="true" />
+          </el-button>
+          <span class="text-gray-800 font-medium text-center">
+            <el-date-picker
+                v-model="currentDateFormatted"
+                type="date"
+                placeholder="Pick a day"
+                value-format="DD-MM-YYYY"
+                format="DD-MM-YYYY"
+                disabled
+            />
+          </span>
+          <el-button @click="nextDay">
+            <Icon icon="material-symbols:chevron-right-rounded" class="text-[28px]" :ssr="true" />
+          </el-button>
+        </div>
+        <FullCalendar
+            style="min-height: 450px; max-height: 600px"
+            ref="calendarRef"
+            :options="calendarOptions"
+        />
+        <div class="mt-4">
+          <div class="flex flex-wrap gap-2">
+            <div
+                v-for="(color, status) in statusColors"
+                :key="status"
+                class="flex items-center gap-2"
+            >
+              <div
+                  :style="{ backgroundColor: color }"
+                  class="w-4 h-4 rounded border border-gray-300"
+              ></div>
+              <span class="text-gray-700 capitalize text-sm">
+                {{ getStatusTag(status)?.text }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div v-else>
-        <el-table :data="getAppointmentData.data" style="width: 100%" stripe>
+        <el-table class="mt-4" :data="getAppointmentData.data" style="width: 100%" stripe>
           <el-table-column prop="id" label="ID" width="80"></el-table-column>
           <el-table-column label="Услуга">
             <template #default="scope">
@@ -82,28 +129,43 @@ import interactionPlugin from "@fullcalendar/interaction";
 import ruLocale from "@fullcalendar/core/locales/ru";
 
 import Pagination from "@/components/Pagination.vue";
+import FormFilter from "./components/FormFilter.vue";
+import { Icon } from "@iconify/vue";
 
 const appointment = appointmentStore();
 const router = useRouter();
 const loading = ref(false);
-
 const viewMode = ref("calendar");
+const searchValue = ref({}); // Объект фильтра
 
 const getAppointmentData = computed(() => appointment.getAppointment);
-
+const currentDate = ref(moment());
+const currentDateFormatted = computed(() => currentDate.value.format("DD-MM-YYYY"));
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalItems = computed(() => getAppointmentData.value?.pagination?.total || 0);
+const calendarRef = ref(null);
 
 onMounted(async () => {
   await fetchData();
   console.log("getAppointmentData:", getAppointmentData.value);
 });
 
+const onSearch = (filter) => {
+  console.log("onSearch filter:", filter);
+  searchValue.value = filter;
+  fetchData();
+};
+
 const fetchData = async () => {
   loading.value = true;
   try {
-    await appointment.GET_ALL({ page: 1, per_page: 25 });
+    await appointment.GET_ALL({
+      page: 1,
+      per_page: 25,
+      date: currentDate.value.format("YYYY-MM-DD"),
+      ...searchValue.value
+    });
   } catch (error) {
     console.error(error);
     ElMessage.error("Ошибка загрузки данных приёмов");
@@ -112,94 +174,71 @@ const fetchData = async () => {
   }
 };
 
-function generateFreeSlots(workingHoursStr, date) {
-  const [startStr, endStr] = workingHoursStr.split("-");
-  if (!startStr || !endStr) {
-    throw new Error("Invalid working hours format");
+function gotoCurrentDate() {
+  fetchData();
+  if (calendarRef.value) {
+    calendarRef.value.getApi().gotoDate(currentDate.value.format("YYYY-MM-DD"));
   }
-  const startTime = moment(`${date} ${startStr}`, "YYYY-MM-DD H:mm");
-  const endTime = moment(`${date} ${endStr}`, "YYYY-MM-DD H:mm");
-  if (!startTime.isValid() || !endTime.isValid()) {
-    throw new Error("Invalid start or end time");
-  }
-  const slots = [];
-  let slotId = 1;
-  let currentTime = moment(startTime);
-  while (currentTime.isBefore(endTime)) {
-    const slotStart = moment(currentTime);
-    const slotEnd = moment(currentTime).add(15, "minutes");
-    if (slotEnd.isAfter(endTime)) break;
-    slots.push({
-      id: slotId++,
-      start: slotStart.format("HH:mm"),
-      end: slotEnd.format("HH:mm"),
-      minutes_duration: 15,
-      code: `${slotStart.format("HH:mm")}-${slotEnd.format("HH:mm")}`,
-      status: "free",
-      date: date
-    });
-    currentTime = slotEnd;
-  }
-  return slots;
 }
 
+const statusColors = {
+  waitlist: '#A0AEC0',
+  booked: '#3182CE',
+  arrived: '#63B3ED',
+  'in-progress': '#ED8936',
+  completed: '#48BB78',
+  cancelled: '#F56565'
+};
+
 const calendarEvents = computed(() => {
-  const appointments = getAppointmentData.value.data || [];
-  let events = [];
-  appointments.forEach((appointment) => {
-    if (appointment.slotsDetails && appointment.slotsDetails.length > 0) {
-      const eventColor = appointment.status === "booked" ? "#378006" : "#ff0000";
-      appointment.slotsDetails.forEach((slot) => {
-        if (slot.date && slot.start && slot.end) {
-          const startDateTime = moment(`${slot.date} ${slot.start}`, "YYYY-MM-DD HH:mm").toISOString();
-          const endDateTime = moment(`${slot.date} ${slot.end}`, "YYYY-MM-DD HH:mm").toISOString();
-          const title = `${appointment.patient.full_name} (${appointment.reason_text || "Прием"})`;
-          events.push({
-            info: appointment,
-            title,
-            start: startDateTime,
-            end: endDateTime,
-            color: eventColor,
-            extendedProps: {
-              appointmentId: appointment.id,
-              slotId: slot.id,
-              slotStatus: slot.status,
-            },
-          });
-        }
+  const data = getAppointmentData.value.data || [];
+  return data
+      .filter(app => ['waitlist', 'booked', 'in-progress', 'completed', 'arrived', 'cancelled'].includes(app.status))
+      .map(app => {
+        const timePart = app.time || '09:00:00';
+        const startDate = moment(app.date).format('YYYY-MM-DD') + 'T' + timePart;
+        const endDate = moment(startDate).add(15, 'minutes').toISOString();
+        const color = statusColors[app.status] || '#999';
+        return {
+          id: app.id,
+          title: `${app.encounter_class?.display || ''} ${app.practitioner?.last_name || ''} ${app.practitioner?.first_name || ''}`,
+          start: startDate,
+          end: endDate,
+          backgroundColor: color,
+          borderColor: color,
+          textColor: '#fff'
+        };
       });
-    }
-  });
-  console.log("calendarEvents:", events);
-  return events;
 });
 
+function handleEventClick(info) {
+  const appointmentId = info.event.id;
+  router.push(`/appointments/${appointmentId}`);
+}
+
 const calendarOptions = computed(() => ({
-  locale: ruLocale,
-  plugins: [ dayGridPlugin, timeGridPlugin, interactionPlugin ],
-  nowIndicator: true,
-  initialView: "timeGridDay",
-  defaultDate: "2025-02-10",
-  headerToolbar: {
-    left: "prev,next today",
-    center: "title",
-    right: "dayGridMonth,timeGridWeek,timeGridDay",
-  },
-  slotDuration: "00:15:00",
-  slotLabelInterval: "00:15:00",
-  eventColor: "#378006",
-  eventTextColor: "#ffffff",
+  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+  initialView: 'timeGridDay',
+  locales: [ruLocale],
+  locale: 'ru',
+  headerToolbar: false,
   events: calendarEvents.value,
-  slotMinTime: "08:00:00",
-  slotMaxTime: "20:00:00",
-  eventClick: (info) => {
-    const appointmentId = info.event.extendedProps.appointmentId;
-    if (!appointmentId) {
-      alert("ID записи отсутствует!");
-      return;
-    }
-    router.push(`/appointments/${ appointmentId }`);
+  slotDuration: "00:15:00",
+  slotMinTime: '00:00:00',
+  slotMaxTime: '24:00:00',
+  allDaySlot: false,
+  nowIndicator: true,
+  editable: true,
+  dateClick(info) {
+    console.log(`Клик по дате: ${info.dateStr}`);
   },
+  eventClick: handleEventClick,
+  eventDrop(info) {
+    console.log(`Событие "${info.event.title}" перенесено на ${info.event.start}`);
+  },
+  eventResize(info) {
+    console.log(`Событие "${info.event.title}" растянуто до ${info.event.end}`);
+  }
 }));
 
 const formatDate = (dateString) => {
@@ -210,7 +249,8 @@ const handlePageChange = async (page) => {
   currentPage.value = page;
   await appointment.GET_ALL({
     page: currentPage.value,
-    per_page: pageSize.value
+    per_page: pageSize.value,
+    ...searchValue.value
   });
 };
 
@@ -219,12 +259,42 @@ const handlePageSizeChange = async (newSize) => {
   currentPage.value = 1;
   await appointment.GET_ALL({
     page: currentPage.value,
-    per_page: pageSize.value
+    per_page: pageSize.value,
+    ...searchValue.value
   });
 };
 
 const editAppointment = (appointment) => {
-  router.push(`/appointments/${ appointment.id }`);
+  router.push(`/appointments/${appointment.id}`);
+};
+
+function prevDay() {
+  currentDate.value = currentDate.value.clone().subtract(1, 'day');
+  gotoCurrentDate();
+}
+
+function nextDay() {
+  currentDate.value = currentDate.value.clone().add(1, 'day');
+  gotoCurrentDate();
+}
+
+const getStatusTag = (status) => {
+  switch (status) {
+    case "waitlist":
+      return { text: "В ожидании", type: "warning" };
+    case "booked":
+      return { text: "Забронировано", type: "info" };
+    case "arrived":
+      return { text: "Прибыл", type: "success" };
+    case "in-progress":
+      return { text: "В процессе", type: "primary" };
+    case "completed":
+      return { text: "Выполнено", type: "success" };
+    case "cancelled":
+      return { text: "Отменено", type: "danger" };
+    default:
+      return { text: status, type: "info" };
+  }
 };
 
 watch(getAppointmentData, (newVal) => {
