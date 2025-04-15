@@ -26,7 +26,7 @@ const props = defineProps({
     required: true
   }
 })
-const emit = defineEmits(['edit', 'cancel'])
+const emit = defineEmits(['success', 'cancel'])
 
 const store = servicesStore()
 
@@ -44,25 +44,24 @@ onMounted(() => {
 })
 
 watch(
-  () => props.data,
-  (newVal) => {
-    Object.assign(editForm, newVal)
-  },
-  { deep: true }
+    () => props.data,
+    (newVal) => {
+      Object.assign(editForm, newVal)
+    },
+    { deep: true }
 )
 
 const onSave = async () => {
   isLoading.value = true
-  const payload = { 
-    class_id: props.data.class_id,
+  const payload = {
     code: editForm.code,
     display: editForm.display,
     price: editForm.price
   }
 
   try {
-    await store.UPDATE_ENCOUNTER_TYPES(props.data.id, payload)
-    emit('edit', payload)
+    await store.UPDATE_PAID_SERVICE(props.data.id, payload)
+    emit('success', payload)
   } catch (error) {
     console.error(error)
   } finally {

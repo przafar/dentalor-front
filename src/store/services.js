@@ -27,6 +27,8 @@ export const servicesStore = defineStore('services', {
     encounterClasses: [],
     encounterTypes: [],
     analysisTypes: [],
+      paidServices: [],
+
   }),
 
   actions: {
@@ -153,12 +155,71 @@ export const servicesStore = defineStore('services', {
         .catch((error) => {
           return error
         })
-    }
+    },
+
+
+
+    async GET_PAID_SERVICES(params) {
+      return await axios
+          .get('valuesets/paid_services', { params: params })
+          .then((e) => {
+            this.paidServices = e.data.data;
+            return e;
+          })
+          .catch((error) => {
+            return error;
+          });
+    },
+
+    async GET_PAID_SERVICE_BY_ID(id) {
+      return await axios
+          .get(`valuesets/paid_services/${id}`)
+          .then((e) => {
+            return e;
+          })
+          .catch((error) => {
+            return error;
+          });
+    },
+
+    async CREATE_PAID_SERVICE(body) {
+      return await axios
+          .post('valuesets/paid_services', body)
+          .then((e) => {
+            return e;
+          })
+          .catch((error) => {
+            return error;
+          });
+    },
+
+    async UPDATE_PAID_SERVICE(id, body) {
+      return await axios
+          .put(`valuesets/paid_services/${id}`, body)
+          .then((e) => {
+            return e;
+          })
+          .catch((error) => {
+            return error;
+          });
+    },
+
+    async DELETE_PAID_SERVICE(id) {
+      return await axios
+          .delete(`valuesets/paid_services/${id}`)
+          .then((e) => {
+            return e;
+          })
+          .catch((error) => {
+            return error;
+          });
+    },
   },
 
   getters: {
     getEncounterClasses: (state) => state.encounterClasses,
     getEncounterTypes: (state) => state.encounterTypes,
     getAnalysisTypes: (state) => state.analysisTypes,
+    getPaidServices: (state) => state.paidServices,
   },
 });

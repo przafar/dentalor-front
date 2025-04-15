@@ -9,6 +9,7 @@ import AppointmentShow from '../pages/appointment/Show.vue';
 import Organizations from '../pages/organizations/Index.vue';
 import Practitioners from '../pages/practitioners/Index.vue';
 import PractitionerShow from '../pages/practitioners/Show.vue';
+import Payments from '../pages/payments/Index.vue';
 import Login from '../pages/login/Index.vue';
 
 import MainLayout from '../layouts/MainLayout.vue';
@@ -73,6 +74,12 @@ const routes = [
         name: 'appointments-show',
         component: AppointmentShow,
         meta: { name: 'appointments' },
+      },
+      {
+        path: 'payments',
+        name: 'payments',
+        component: Payments,
+        meta: { name: 'payments' },
       },
     ],
   },
