@@ -6,8 +6,7 @@
       label-width="120px"
       label-position="top"
   >
-    <!-- Поле для выбора услуги (обязательно) -->
-    <el-form-item label="Услуга" prop="encounter_class" required>
+    <el-form-item label="Направление" prop="encounter_class" required>
       <el-select v-model="form.encounter_class" placeholder="Выберите услугу">
         <el-option
             v-for="item in getServicesData"
@@ -18,7 +17,53 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item label="Специалист" prop="practitioner_role" required>
+    <div class="bg-gray-100 p-4 rounded-lg">
+      <!-- Переключатель платного/бесплатного приёма -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <el-form-item label="Платный приём" prop="paid_appointment">
+          <el-switch
+              v-model="form.paid_appointment"
+              active-text="Платный"
+              inactive-text="Бесплатный"
+          />
+        </el-form-item>
+      </div>
+
+      <!-- Блок с выбором услуги, ценой, типом оплаты и статусом оплаты -->
+      <div v-if="form.paid_appointment" class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+        <el-form-item label="Платная услуга" prop="paid_service">
+          <el-select v-model="form.paid_service" placeholder="Выберите услугу" value-key="id">
+            <el-option
+                v-for="item in getPaidServices"
+                :key="item.code"
+                :label="item.display"
+                :value="item"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Цена" prop="paid_service_price">
+          <el-input v-model="form.paid_service_price" placeholder="Цена услуги" />
+          <div v-if="discountPercent !== null" class="text-sm text-gray-600 mt-1">
+            Скидка: {{ discountPercent }}%
+          </div>
+        </el-form-item>
+
+        <el-form-item label="Тип оплаты" prop="paid_service_type" class="sm:col-span-1">
+          <el-select v-model="form.paid_service_type" placeholder="Выберите тип оплаты">
+            <el-option label="Наличные" value="CASH" />
+            <el-option label="Карта" value="CARD" />
+          </el-select>
+        </el-form-item>
+
+        <!-- Новый элемент: чекбокс 'Оплатил' -->
+        <el-form-item label="Оплатил" prop="paid_service_status" class="sm:col-span-1">
+          <el-checkbox v-model="form.paid_service_status">Оплатил</el-checkbox>
+        </el-form-item>
+      </div>
+    </div>
+
+    <el-form-item class="mt-2" label="Специалист" prop="practitioner_role" required>
       <el-select v-model="form.practitioner_role" @change="handleCheckboxChange" placeholder="Выберите специалиста">
         <el-option
             v-for="item in getPractitionerRoles"
@@ -61,11 +106,7 @@
     </el-form-item>
 
     <div v-if="form.withDate && form.practitioner_role && form.date">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Дополнительные поля или информация по необходимости -->
-      </div>
-
-      <!-- Сетка доступных слотов с возможностью множественного выбора -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <div class="slots-container" v-if="freeSlots && freeSlots.length">
         <p class="mb-2 font-medium">Доступные слоты (выберите один или несколько):</p>
         <div class="slots-grid">
@@ -81,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Кнопка отправки формы -->
     <div class="flex justify-end">
       <el-form-item class="mt-4">
         <el-button type="primary" @click="submitForm">Создать приём</el-button>
@@ -91,7 +131,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { servicesStore } from '@/store/services';
 import { appointmentStore } from '@/store/appointments';
 import { practitionerRoleStore } from '@/store/practitionerRoles';
@@ -108,6 +148,7 @@ const emit = defineEmits(["submit"]);
 
 const getServicesData = computed(() => serviceStore.getEncounterClasses);
 const getPractitionerRoles = computed(() => practitionerRole.getPractitionerRoles);
+const getPaidServices = computed(() => serviceStore.getPaidServices);
 
 const freeSlots = ref([]);
 
@@ -122,7 +163,12 @@ const form = ref({
   patient_id: patientId,
   status: 'booked',
   withDate: false,
-  slots: []
+  slots: [],
+  paid_appointment: false,
+  paid_service: null,
+  paid_service_price: null,
+  paid_service_type: "CASH",  // Значение по умолчанию - CASH
+  paid_service_status: false  // Новый чекбокс "Оплатил"
 });
 
 const rules = {
@@ -131,6 +177,12 @@ const rules = {
   ],
   practitioner_role: [
     { required: true, message: 'Пожалуйста, выберите специалиста', trigger: 'change' }
+  ],
+  reason_text: [
+    { required: false, message: 'Пожалуйста, введите причину приема', trigger: 'blur' }
+  ],
+  paid_service: [
+    { required: false, message: 'Пожалуйста, выберите платную услугу', trigger: 'change' }
   ],
   date: [
     {
@@ -167,10 +219,11 @@ onMounted(async () => {
 const fetchValueSets = async () => {
   await serviceStore.GET_LIST_OF_ECOUNTER_CLASSES();
   await practitionerRole.GET_ALL();
+  await serviceStore.GET_PAID_SERVICES();
 };
 
 const handleCheckboxChange = async () => {
-  if(form.value.practitioner_role && form.value.date && form.value.withDate) {
+  if (form.value.practitioner_role && form.value.date && form.value.withDate) {
     const params = {
       date: form.value.date,
       practitioner_role_id: form.value.practitioner_role
@@ -192,7 +245,6 @@ const handleSlotClick = (slot) => {
   if (slot.status === "booked") return;
   const index = form.value.slots.indexOf(slot.id);
   if (index === -1) {
-    // Добавляем слот в массив выбранных
     form.value.slots.push(slot.id);
   } else {
     form.value.slots.splice(index, 1);
@@ -222,7 +274,11 @@ const submitForm = () => {
       reason_text: form.value.reason_text,
       patient_id: patientId,
       status: form.value.withDate ? 'booked' : 'waitlist',
-      slots: form.value.slots
+      slots: form.value.slots,
+      paid_service: form.value.paid_appointment && form.value.paid_service ? form.value.paid_service.id : null,
+      paid_service_price: form.value.paid_appointment ? form.value.paid_service_price : null,
+      paid_service_type: form.value.paid_appointment ? form.value.paid_service_type : null,
+      paid_service_status: form.value.paid_appointment ? form.value.paid_service_status : false
     };
     try {
       await appointment.CREATE_APPOINTMENT(appointmentPayload);
@@ -234,6 +290,27 @@ const submitForm = () => {
     }
   });
 };
+
+const discountPercent = computed(() => {
+  if (form.value.paid_service && form.value.paid_service.price && form.value.paid_service_price != null) {
+    let discount = ((form.value.paid_service.price - form.value.paid_service_price) / form.value.paid_service.price) * 100;
+    discount = discount < 0 ? 0 : Math.round(discount);
+    return discount;
+  }
+  return null;
+});
+
+// При выборе платной услуги автоматически заполняем цену, оставляя возможность редактирования
+watch(
+    () => form.value.paid_service,
+    (newVal) => {
+      if (newVal && newVal.price !== undefined) {
+        form.value.paid_service_price = newVal.price;
+      } else {
+        form.value.paid_service_price = null;
+      }
+    }
+);
 </script>
 
 <style scoped>
