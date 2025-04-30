@@ -17,6 +17,7 @@
           <div class=" flex space-x-4">
             <template v-if="isWaitlistOrArrived">
               <el-button type="primary" @click="startWork">Начать работу</el-button>
+              <el-button type="success" @click="callAppointment">Вызвать</el-button>
             </template>
             <template v-else-if="getAppointmentData?.observation && getAppointmentData?.status === 'in-progress'">
               <el-dropdown @command="handleCommand" trigger="click">
@@ -346,7 +347,8 @@ import { onMounted, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { appointmentStore } from "@/store/appointments";
 import { servicesStore } from '@/store/services'
-import { ElMessage } from "element-plus";
+import { useQueueStore } from '@/store/queueStore';
+import { ElMessage, ElNotification } from "element-plus";
 import dayjs from "dayjs";
 import FormCreateObservation from "./components/FormCreateObservation.vue";
 import FormUpdateObservation from "./components/FormUpdateObservation.vue";
@@ -363,6 +365,7 @@ const route = useRoute();
 const router = useRouter();
 const appointment = appointmentStore();
 const services = servicesStore();
+const queueStore = useQueueStore();
 
 const appointmentId = route.params.id;
 
@@ -415,6 +418,27 @@ const startWork = async () => {
     ElMessage.error("Ошибка обновления статуса приема");
   }
 };
+
+async function callAppointment() {
+  if (!getAppointmentData.value) return;
+  try {
+    loading.value = true;
+    const called = await queueStore.callById(getAppointmentData.value.id);
+    // показываем уведомление
+    ElNotification({
+      title: "Клиент вызван",
+      message: `Вызван клиент: ${called.patient.full_name} (${called.time})`,
+      type: "success",
+    });
+    // можно обновить статус приёма в деталях
+    await fetchData();
+  } catch (err) {
+    console.error(err);
+    ElMessage.error("Не удалось вызвать приём");
+  } finally {
+    loading.value = false;
+  }
+}
 
 const returnAppointment = () => {
   confirmReturnVisible.value = true

@@ -53,7 +53,6 @@ export const organizationsStore = defineStore('organizations', {
         async CREATE_ORGANIZATION(body) {
             try {
                 const response = await axios.post('organizations', body);
-                // Если сервер возвращает созданную организацию:
                 if (response.data.organization) {
                     this.organizations.push(response.data.organization);
                 }
