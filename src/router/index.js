@@ -7,6 +7,7 @@ import PatientShow from '../pages/patients/Show.vue';
 import Appointment from '../pages/appointment/Index.vue';
 import AppointmentShow from '../pages/appointment/Show.vue';
 import Organizations from '../pages/organizations/Index.vue';
+import OrganizationShow from '../pages/organizations/Show.vue';
 import Practitioners from '../pages/practitioners/Index.vue';
 import PractitionerShow from '../pages/practitioners/Show.vue';
 import Payments from '../pages/payments/Index.vue';
@@ -31,6 +32,12 @@ const routes = [
         path: 'organizations',
         name: 'organizations',
         component: Organizations,
+        meta: { name: 'organizations' },
+      },
+      {
+        path: 'organization/:id',
+        name: 'organization-show',
+        component: OrganizationShow,
         meta: { name: 'organizations' },
       },
       {
@@ -82,6 +89,18 @@ const routes = [
         meta: { name: 'payments' },
       },
     ],
+  },
+  {
+    path: '/queue-table',
+    meta: { requiresAuth: true },
+    component: EmptyLayout,
+    children: [
+      {
+        path: '',
+        name: 'QueueTable',
+        component: () => import('../pages/queue/Index.vue'),
+      }
+    ]
   },
   {
     path: '/login',

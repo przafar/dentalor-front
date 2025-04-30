@@ -92,7 +92,10 @@ export const appointmentStore = defineStore('appointment', {
                 .catch((error) => {
                     return error
                 })
-        }
+        },
+
+
+
 
     },
 

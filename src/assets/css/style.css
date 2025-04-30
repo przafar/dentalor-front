@@ -321,3 +321,216 @@ body {
     flex-direction: row;
     transition: all 0.5s ease;
 }
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.4s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    transform: translateX(-20px);
+    opacity: 0;
+}
+.slide-enter-to,
+.slide-leave-from {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    transform: translateX(0);
+    opacity: 1;
+}
+.queue-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f9fafb;
+    padding: 16px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.date-time .date {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.date-time .time {
+    font-size: 1.3rem;
+    opacity: 0.8;
+}
+
+.widgets {
+    display: flex;
+    gap: 24px;
+    margin: 24px 0;
+}
+
+.widget {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+
+    position: relative;
+}
+
+.widget:hover {
+    transform: translateY(-4px);
+}
+
+.widget-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.widget-content {
+    font-size: 1.5rem;
+    color: #1f2937;
+    position: relative;
+    min-height: 100px;
+}
+
+.columns {
+    display: flex;
+    flex: 1;
+    gap: 32px;
+}
+
+.current-ticket, .upcoming-list {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.label {
+    font-size: 1.5rem;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.ticket-number {
+    font-size: 7rem;
+    font-weight: 800;
+    color: #3b82f6;
+}
+
+.ticket-time {
+    font-size: 2.8rem;
+    margin-top: 10px;
+}
+
+.ticket-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.no-ticket {
+    font-size: 1.6rem;
+    color: #9ca3af;
+}
+
+.upcoming-item {
+    display: flex;
+    padding: 14px 0;
+    border-bottom: 1px solid #e5e7eb;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.upcoming-item:hover {
+    background: #f3f4f6;
+}
+
+.position {
+    width: 50px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.info .time {
+    font-size: 1.2rem;
+}
+
+.info .name {
+    font-size: 1rem;
+    color: #4b5563;
+}
+
+.bottom-ticker {
+    background: #3b82f6;
+    color: #fff;
+    padding: 12px 0;
+    margin-top: 24px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+
+}
+
+.bottom-ticker .ticker-content {
+    width: 100%;
+    display: inline-block;
+    white-space: nowrap;
+    animation: scroll-left 23s linear infinite;
+}
+
+@keyframes scroll-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.call-dialog .el-dialog__wrapper {
+    background: rgba(0,0,0,0.6);
+}
+
+.call-dialog .el-dialog {
+    padding: 0;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.call-dialog .el-dialog__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    height: 50vh;
+}
+
+.dialog-number {
+    font-size: 8.5rem;
+    color: #3b82f6;
+    font-weight: 800;
+}
+
+.dialog-name {
+    font-size: 2.6rem;
+    margin-top: 16px;
+    font-weight: 600;
+}
+.temp-range {
+    display: flex;
+    font-size: 18px;
+}

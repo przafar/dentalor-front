@@ -21,7 +21,7 @@
         <el-tag :type="payment.payment_type === 'CASH' ? 'success' : 'info'">
           {{ payment.payment_type === 'CASH' ? 'Наличные' : 'Карта' }}
         </el-tag>
-      </el-descriptions-item>
+      </el-descriptions-item>`
       <el-descriptions-item label="Статус">
         <el-tag :type="payment.status === 'paid' ? 'success' : 'danger'">
           {{ payment.status === 'paid' ? 'Оплачен' : 'Не оплачен' }}

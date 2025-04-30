@@ -69,6 +69,12 @@
       </el-icon>
       <template #title>Касса</template>
     </el-menu-item>
+    <el-menu-item v-if="vCan.can('appointment_index', 'all')" index="QueueTable" :route="{ name: 'QueueTable' }" class="text-[#495265]">
+      <el-icon class="text-lg">
+        <Icon icon="material-symbols:live-tv-outline-rounded" class="text-[28px]" :ssr="true" />
+      </el-icon>
+      <template #title>Телевизор</template>
+    </el-menu-item>
   </el-menu>
 </template>
 

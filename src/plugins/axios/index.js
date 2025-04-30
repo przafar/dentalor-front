@@ -7,27 +7,28 @@ const BASE_URL =
 const instance = axios.create({
   baseURL: BASE_URL,
   timeout: 200000,
+  // Не задаём Content-Type глобально, чтобы multipart/form-data устанавливался автоматически
   headers: {
     Accept: 'application/json, text/plain, */*',
-    'Content-Type': 'application/json',
   },
 });
 
-instance.interceptors.request.use((config) => {
+instance.interceptors.request.use((cfg) => {
   let user = JSON.parse(localStorage.getItem('user'));
   const token = localStorage.getItem('token');
 
-  config.headers = {
-    ...config.headers,
-  };
-  console.log(user, "USEr");
-  if (user) {
-    config.headers['organization-id'] = user?.organization?.id;
+  // Если тело запроса — FormData, удаляем Content-Type, чтобы браузер выставил multipart/form-data
+  if (cfg.data instanceof FormData) {
+    delete cfg.headers['Content-Type'];
+  }
+
+  if (user && user.organization && user.organization.id) {
+    cfg.headers['organization-id'] = user.organization.id;
   }
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    cfg.headers.Authorization = `Bearer ${token}`;
   }
-  return config;
+  return cfg;
 });
 
 instance.interceptors.response.use(
@@ -37,7 +38,6 @@ instance.interceptors.response.use(
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         window.location.href = '/login';
-
       }
       return Promise.reject(error);
     }
