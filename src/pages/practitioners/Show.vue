@@ -46,6 +46,14 @@
                 : '—' }}
             </span>
           </div>
+          <div v-if="practitioner.organizations && practitioner.organizations.length">
+            <span class="font-bold">Организации:</span>
+            <ul class="list-disc list-inside">
+              <li v-for="org in practitioner.organizations" :key="org.id">
+                {{ org.name_ru }}
+              </li>
+            </ul>
+          </div>
         </div>
         <div class="mt-6">
           <el-button type="primary" @click="openRoleDialog">Добавить/Изменить роль</el-button>
@@ -89,9 +97,13 @@
                 <div>Пт: {{ role.working_hours.fri }}</div>
               </div>
             </div>
-            <div class="mt-2">
-              <div class="font-bold">Права:</div>
-              <div>{{ role.roles && role.roles.roles || 'Не указаны' }}</div>
+            <div class="mt-2" v-if="practitioner.organizations">
+              <div class="font-bold">Организации:</div>
+              <ul class="list-disc list-inside text-sm">
+                <li v-for="org in practitioner.organizations" :key="org.id">
+                  {{ org.name_ru }}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -102,12 +114,21 @@
     <el-dialog
         v-model="roleDialogVisible"
         :title="roleUpdateMode ? 'Изменить роль' : 'Добавить роль'"
-        width="40%"
+        width="50%"
     >
-      <el-form :model="roleForm" ref="roleFormRef" label-width="120px" label-position="top">
+      <el-form
+          :model="roleForm"
+          ref="roleFormRef"
+          label-width="120px"
+          label-position="top"
+      >
         <template v-if="roleUpdateMode">
           <el-form-item label="Логин" prop="login">
-            <el-input v-model="roleForm.login" placeholder="Введите логин" autocomplete="new-password" />
+            <el-input
+                v-model="roleForm.login"
+                placeholder="Введите логин"
+                autocomplete="new-password"
+            />
           </el-form-item>
           <el-form-item label="Пароль" prop="password">
             <el-input
@@ -119,8 +140,27 @@
           </el-form-item>
         </template>
 
+        <el-form-item label="Организация" prop="organization">
+          <el-select
+              v-model="roleForm.organization"
+              placeholder="Выберите организацию"
+              multiple
+          >
+            <el-option
+                v-for="item in getAllOrganizations"
+                :key="item.id"
+                :label="item.name_ru"
+                :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="Роль" prop="role">
-          <el-select v-model="roleForm.role" placeholder="Выберите роль" multiple>
+          <el-select
+              v-model="roleForm.role"
+              placeholder="Выберите роль"
+              multiple
+          >
             <el-option
                 v-for="item in catalog.getRoles"
                 :key="item.code"
@@ -131,11 +171,19 @@
         </el-form-item>
 
         <el-form-item label="Номер кабинета" prop="room_number">
-          <el-input v-model="roleForm.room_number" placeholder="Введите номер кабинета" />
+          <el-input
+              v-model="roleForm.room_number"
+              placeholder="Введите номер кабинета"
+          />
         </el-form-item>
 
         <el-form-item label="Сервис" prop="service">
-          <el-select v-model="roleForm.service" placeholder="Выберите сервис" multiple clearable>
+          <el-select
+              v-model="roleForm.service"
+              placeholder="Выберите сервис"
+              multiple
+              clearable
+          >
             <el-option
                 v-for="item in service.getEncounterClasses"
                 :key="item.id"
@@ -146,30 +194,48 @@
         </el-form-item>
 
         <el-form-item label="Специальность" prop="specialty">
-          <el-input v-model="roleForm.specialty" placeholder="Введите специальность" />
+          <el-input
+              v-model="roleForm.specialty"
+              placeholder="Введите специальность"
+          />
         </el-form-item>
 
         <el-form-item label="Рабочие часы" prop="working_hours">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
+            <div class="w-full">
               <label class="block text-sm font-medium">Пн</label>
-              <el-input v-model="roleForm.working_hours.mon" placeholder="09:00-18:00" />
+              <el-input
+                  v-model="roleForm.working_hours.mon"
+                  placeholder="09:00-18:00"
+              />
             </div>
-            <div>
+            <div class="w-full">
               <label class="block text-sm font-medium">Вт</label>
-              <el-input v-model="roleForm.working_hours.tue" placeholder="09:00-18:00" />
+              <el-input
+                  v-model="roleForm.working_hours.tue"
+                  placeholder="09:00-18:00"
+              />
             </div>
-            <div>
+            <div class="w-full">
               <label class="block text-sm font-medium">Ср</label>
-              <el-input v-model="roleForm.working_hours.wed" placeholder="09:00-18:00" />
+              <el-input
+                  v-model="roleForm.working_hours.wed"
+                  placeholder="09:00-18:00"
+              />
             </div>
-            <div>
+            <div class="w-full">
               <label class="block text-sm font-medium">Чт</label>
-              <el-input v-model="roleForm.working_hours.thu" placeholder="09:00-18:00" />
+              <el-input
+                  v-model="roleForm.working_hours.thu"
+                  placeholder="09:00-18:00"
+              />
             </div>
-            <div>
+            <div class="w-full">
               <label class="block text-sm font-medium">Пт</label>
-              <el-input v-model="roleForm.working_hours.fri" placeholder="09:00-18:00" />
+              <el-input
+                  v-model="roleForm.working_hours.fri"
+                  placeholder="09:00-18:00"
+              />
             </div>
           </div>
         </el-form-item>
@@ -186,10 +252,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from '@/plugins/axios/index';
 import { practitionersStore } from '@/store/practitioners';
+import { organizationsStore } from '@/store/organizations';
 import { servicesStore } from '@/store/services.js';
 import { catalogsStore } from '@/store/catalogs.js';
 import { ElMessage } from 'element-plus';
@@ -200,6 +267,9 @@ const practitioner = ref({});
 const catalog = catalogsStore();
 const service = servicesStore();
 const store = practitionersStore();
+const organizationStore = organizationsStore();
+
+const getAllOrganizations = computed(() => organizationStore.getOrganizations);
 
 function loadPractitionerFromToken() {
   const token = localStorage.getItem('accessToken');
@@ -245,6 +315,7 @@ const roleForm = ref({
   password: '',
   role: [],
   room_number: '',
+  organization: [],
   specialty: '',
   service: [],
   working_hours: {
@@ -256,19 +327,24 @@ const roleForm = ref({
   },
 });
 
-function openRoleDialog() {
-  if (practitioner.value.roles && practitioner.value.roles.length) {
+const openRoleDialog = async () => {
+  await organizationStore.GET_LIST_OF_ORGANIZATIONS({
+    page: 1,
+    per_page: 40,
+  });
+  if (practitioner.value.roles?.length) {
     const existing = practitioner.value.roles[0];
     roleUpdateMode.value = true;
     roleId.value = existing.id;
     roleForm.value = {
       login: existing.login || '',
       password: '',
-      role: existing.role ? [ existing.role ] : [],
+      organization: practitioner.value.organizations?.map(o => o.id) || [],
+      role: existing.role || [],
       room_number: existing.room_number || '',
       specialty: existing.specialty || '',
       service: existing.service || [],
-      working_hours: {...existing.working_hours},
+      working_hours: { ...existing.working_hours },
     };
   } else {
     roleUpdateMode.value = false;
@@ -278,6 +354,7 @@ function openRoleDialog() {
       password: '',
       role: [],
       room_number: '',
+      organization: [],
       specialty: '',
       service: [],
       working_hours: {
@@ -290,7 +367,7 @@ function openRoleDialog() {
     };
   }
   roleDialogVisible.value = true;
-}
+};
 
 function closeRoleDialog() {
   roleDialogVisible.value = false;
@@ -299,10 +376,11 @@ function closeRoleDialog() {
 async function submitRole() {
   const payload = {
     practitioner_id: practitioner.value.id,
-    role: roleForm.value.role[0] || '',
+    role: roleForm.value.role,
     room_number: roleForm.value.room_number,
     specialty: roleForm.value.specialty,
     working_hours: roleForm.value.working_hours,
+    organization: roleForm.value.organization,
     service: roleForm.value.service,
   };
   if (roleUpdateMode.value && roleId.value) {
@@ -312,7 +390,7 @@ async function submitRole() {
 
   try {
     if (roleUpdateMode.value && roleId.value) {
-      await axios.put(`practitioner_roles/${ roleId.value }`, payload);
+      await axios.put(`practitioner_roles/${roleId.value}`, payload);
       ElMessage.success('Роль успешно обновлена');
     } else {
       await axios.post('practitioner_roles', payload);
@@ -327,13 +405,13 @@ async function submitRole() {
 }
 
 const rules = {
-  role: [ {required: true, message: 'Выберите роль', trigger: 'change'} ],
-  room_number: [ {required: true, message: 'Введите номер кабинета', trigger: 'blur'} ],
-  specialty: [ {required: true, message: 'Введите специальность', trigger: 'blur'} ],
-  service: [ {required: true, message: 'Выберите сервис', trigger: 'change'} ],
+  role: [{ required: true, message: 'Выберите роль', trigger: 'change' }],
+  room_number: [{ required: true, message: 'Введите номер кабинета', trigger: 'blur' }],
+  specialty: [{ required: true, message: 'Введите специальность', trigger: 'blur' }],
+  service: [{ required: true, message: 'Выберите сервис', trigger: 'change' }],
 };
 </script>
 
 <style scoped>
-/* Стили через Tailwind-классы */
+/* Все стили вынесены в Tailwind-классы */
 </style>

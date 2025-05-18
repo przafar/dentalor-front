@@ -10,7 +10,7 @@
           Добавить услугу
         </el-button>
       </div>
-    </div>
+    </div>q
     <el-table :data="getAllData" border stripe>
       <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="code" label="Код" width="120" />
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { servicesStore } from '@/store/services'
 import CreateForm from '../dialogs/EncounterTypes/CreateForm.vue'
 import EditForm from '../dialogs/EncounterTypes/EditForm.vue'
@@ -66,9 +66,17 @@ const store = servicesStore()
 const createDrawerVisible = ref(false)
 const editDrawerVisible = ref(false)
 const selectedService = ref(null)
+const loadingData = ref(false)
 
 const getAllData = computed(() => store.getEncounterTypes)
 
+onMounted(fetchAll)
+
+async function fetchAll() {
+  loadingData.value = true
+  await store.GET_LIST_OF_ECOUNTER_TYPES(props.data.code)
+  loadingData.value = false
+}
 const fetchFormController = async () => {
   await store.GET_LIST_OF_ECOUNTER_TYPES(props.data.code)
 }

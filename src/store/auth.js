@@ -9,6 +9,7 @@ export const authStore = defineStore('auth', {
       roles: localStorage.getItem('user')
           ? JSON.parse(localStorage.getItem('user')).roles
           : null,
+      organizations: localStorage.getItem('organizations') ? JSON.parse(localStorage.getItem('organizations')) : null,
       ability: null,
       isCollapse: false,
     },
@@ -22,29 +23,37 @@ export const authStore = defineStore('auth', {
   actions: {
     async login(formData) {
       try {
-        const response = await axios.post('/auth/login', {
+        const { data } = await axios.post('/auth/login', {
           username: formData.email,
           password: formData.password,
         });
+        const { accessToken } = data;
+        const decoded = jwtDecode(accessToken);
 
-        const { accessToken } = response.data;
-        const decodedToken = jwtDecode(accessToken);
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('user', JSON.stringify(decoded));
+        localStorage.setItem('organizations', JSON.stringify(decoded.organizations || []));
 
-        localStorage.setItem('token', accessToken);
-        localStorage.setItem('user', JSON.stringify(decodedToken));
+        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        if (decoded.organizations?.length === 1) {
+          axios.defaults.headers.common['organization-id'] = decoded.organizations[0].id;
+          localStorage.setItem('current_organization', decoded.organizations[0].id);
+        }
 
-        this.user.token = accessToken;
-        this.user.roles = decodedToken.roles; // Используем поле roles
+        this.user.token         = accessToken;
+        this.user.roles         = decoded.roles;
+        this.user.organizations = decoded.organizations || [];
 
-        return response.data;
+        return { accessToken, user: decoded };
       } catch (error) {
         console.error('Login failed:', error);
-        throw new Error('Login failed.');
+        throw new Error(error.response?.data?.message || 'Login failed.');
       }
     },
     logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+        localStorage.removeItem('organizations');
 
       this.user.token = null;
       this.user.roles = null;

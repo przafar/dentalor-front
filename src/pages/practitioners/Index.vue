@@ -28,10 +28,10 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="gender" label="Пол" min-width="100">
+          <el-table-column prop="gender" label="Организация" min-width="100">
             <template #default="scope">
               <span>
-                {{ scope.row.gender === 'male' ? 'Мужской' : scope.row.gender === 'female' ? 'Женский' : 'Не указан' }}
+                {{ scope.row.organization ? scope.row.organization.name_ru : 'Не указано' }}
               </span>
             </template>
           </el-table-column>
@@ -68,9 +68,9 @@
 
         <Pagination
             class="mt-4"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            :total-items="totalItems"
+            :current-page="getPractitionerPagination.current_page"
+            :page-size="getPractitionerPagination.per_page"
+            :total-items="getPractitionerPagination.total"
             @page-changed="handlePageChange"
             @size-changed="handlePageSizeChange"
         />
@@ -117,7 +117,7 @@ const selectedData = ref(null);
 
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalItems = computed(() => store.getPractitionerPagination?.total || 0);
+const getPractitionerPagination = computed(() => store.getPractitionerPagination);
 const getAllPractitioners = computed(() => store.getPractitioners);
 
 const fetchPractitioners = async () => {

@@ -65,7 +65,7 @@ const store = paymentsStore();
 
 const updateForm = reactive({
   paid_amount: '',
-  payment_type: '',
+  payment_type: 'CASH',
   status: '',
   payment_date: ''
 });
