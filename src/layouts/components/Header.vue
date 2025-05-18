@@ -12,7 +12,7 @@
     <div class="flex justify-between items-center">
       <div class="flex flex-col ml-4 ">
         <h5 class="text-base font-bold text-[#385df0]">{{ user?.practitioner?.last_name }} {{ user?.practitioner?.first_name }} {{ user?.practitioner?.middle_name || '' }}</h5>
-        <p>{{ user?.organization?.name_en }}</p>
+        <p>{{ current_organization?.name_ru }}</p>
       </div>
 
       <nav class="flex space-x-4">
@@ -42,9 +42,11 @@ const store = authStore();
 
 
 const user = ref(null);
+const current_organization = ref(null);
 
 onMounted(() => {
   const storedUser = localStorage.getItem('user');
+  current_organization.value = JSON.parse(localStorage.getItem('current_organization'));
   if (storedUser) {
     user.value = JSON.parse(storedUser);
   }

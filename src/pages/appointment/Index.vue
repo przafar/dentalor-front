@@ -61,6 +61,14 @@
       <div v-else>
         <el-table class="mt-4" :data="getAppointmentData.data" style="width: 100%" stripe>
           <el-table-column prop="id" label="ID" width="80"></el-table-column>
+          <el-table-column label="Пациент">
+            <template #default="scope">
+              <span v-if="scope.row.patient && scope.row.patient.full_name">
+                {{ scope.row.patient.full_name }}
+              </span>
+              <span v-else>-</span>
+            </template>
+          </el-table-column>
           <el-table-column label="Услуга">
             <template #default="scope">
               <span v-if="scope.row.encounter_class && scope.row.encounter_class.display">
@@ -71,6 +79,7 @@
               </span>
             </template>
           </el-table-column>
+
           <el-table-column label="Специалист">
             <template #default="scope">
               <span v-if="scope.row.practitioner && scope.row.practitioner.last_name">
@@ -79,8 +88,7 @@
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="reason_text" label="Причина приема"></el-table-column>
-          <el-table-column prop="status" label="Статус" width="100"></el-table-column>
+
           <el-table-column label="Дата приема" width="120">
             <template #default="scope">
               <span v-if="scope.row.date">{{ formatDate(scope.row.date) }}</span>
@@ -91,6 +99,13 @@
             <template #default="scope">
               <span v-if="scope.row.time">{{ scope.row.time }}</span>
               <span v-else>-</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Статус приёма">
+            <template #default="scope">
+              <el-tag :type="getStatusTag(scope.row.status).type">
+                {{ getStatusTag(scope.row.status).text }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="Действия" width="140">
@@ -201,7 +216,7 @@ const calendarEvents = computed(() => {
         const color = statusColors[app.status] || '#999';
         return {
           id: app.id,
-          title: `${app.encounter_class?.display || ''} ${app.practitioner?.last_name || ''} ${app.practitioner?.first_name || ''}`,
+          title: `${app.encounter_class?.display || ''} ${app.patient?.full_name || ''}`,
           start: startDate,
           end: endDate,
           backgroundColor: color,
@@ -299,6 +314,8 @@ const getStatusTag = (status) => {
 
 watch(getAppointmentData, (newVal) => {
 });
+
+
 </script>
 
 <style scoped>

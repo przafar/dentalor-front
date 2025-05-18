@@ -99,8 +99,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <!-- Модальные окна -->
-    <el-drawer v-model="showDrawerVisible" title="Просмотр" direction="rtl" size="50%">
+    <el-drawer v-model="showDrawerVisible" title="Просмотр" direction="rtl" size="50%" destroy-on-close>
       <ViewTypes :data="selectedItem" />
     </el-drawer>
 
@@ -182,6 +181,7 @@ async function changeTab(tab) {
 function openShowDrawer(row) {
   selectedItem.value = row
   showDrawerVisible.value = true
+
 }
 
 function openEditDrawer(row) {

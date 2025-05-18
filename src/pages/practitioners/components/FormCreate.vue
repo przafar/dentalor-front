@@ -82,16 +82,15 @@ const handleSubmit = () => {
     if (!valid) return;
     loading.value = true;
     try {
-      const storedUser = localStorage.getItem("user");
+      const storedUser = localStorage.getItem("current_organization");
       if (!storedUser) {
         throw new Error("User data not found in localStorage");
       }
       const userData = JSON.parse(storedUser);
-      const organization_id = userData.organization?.id;
+      const organization_id = userData?.id;
       if (!organization_id) {
         throw new Error("Organization ID не найден в localStorage");
       }
-      // Формируем тело запроса, добавляя organization_id
       const body = { ...form.value, organization_id };
       await store.CREATE_PRACTITIONER(body);
       ElMessage.success("Практикующий успешно создан");

@@ -6,7 +6,7 @@
         <div class="time">{{ currentTime }}</div>
       </div>
       <div>
-        <img class="h-12 w-full logo" :src="fullAdImageUrl(settings.logo_url)" alt="Logo">
+        <img class="h-12 w-full logo" src="../../assets/image/dentalor-min.png" alt="Logo">
       </div>
     </header>
 
@@ -217,8 +217,8 @@ onMounted(async () => {
   }, 10000);
 
   try {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const organizationId = user.organization.id;
+    const user = JSON.parse(localStorage.getItem('current_organization'));
+    const organizationId = user.id;
     const resp = await setStore.GET_SETTINGS(organizationId);
     Object.assign(settings, resp.data);
   } catch (err) {

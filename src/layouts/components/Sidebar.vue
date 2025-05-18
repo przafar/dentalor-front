@@ -17,7 +17,7 @@
 
     </div>
 
-    <el-menu-item v-if="vCan.can('dashboard_index', 'all')" index="dashboard" :route="{ name: 'dashboard' }" class="text-[#495265]">
+    <el-menu-item v-if="vCan.can('main_index', 'all')" index="dashboard" :route="{ name: 'dashboard' }" class="text-[#495265]">
       <el-icon class="text-lg">
         <Icon icon="ic:round-home" class="text-[28px]" :ssr="true" />
       </el-icon>
@@ -63,13 +63,13 @@
       </el-icon>
       <template #title>Запись на приём</template>
     </el-menu-item>
-    <el-menu-item v-if="vCan.can('appointment_index', 'all')" index="payments" :route="{ name: 'payments' }" class="text-[#495265]">
+    <el-menu-item v-if="vCan.can('payment_index', 'all')" index="payments" :route="{ name: 'payments' }" class="text-[#495265]">
       <el-icon class="text-lg">
         <Icon icon="material-symbols:money-bag-rounded" class="text-[28px]" :ssr="true" />
       </el-icon>
       <template #title>Касса</template>
     </el-menu-item>
-    <el-menu-item v-if="vCan.can('appointment_index', 'all')" index="QueueTable" :route="{ name: 'QueueTable' }" class="text-[#495265]">
+    <el-menu-item v-if="vCan.can('tv_index', 'all')" index="QueueTable" :route="{ name: 'QueueTable' }" class="text-[#495265]">
       <el-icon class="text-lg">
         <Icon icon="material-symbols:live-tv-outline-rounded" class="text-[28px]" :ssr="true" />
       </el-icon>

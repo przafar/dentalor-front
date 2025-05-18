@@ -32,7 +32,7 @@ export const practitionersStore = defineStore('practitioners', {
             try {
                 const response = await axios.get('practitioners', { params });
                 console.log(response.data);
-                this.practitioners = response.data;
+                this.practitioners = response.data.data;
                 this.practitionerPagination = response.data.pagination;
                 return response;
             } catch (error) {
